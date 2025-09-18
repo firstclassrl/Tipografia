@@ -139,9 +139,9 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
           {/* Content - A4 Landscape Layout */}
           <div className="p-8 overflow-y-auto max-h-[calc(85vh-120px)]">
-            <div className="bg-white min-h-[210mm] w-[297mm] mx-auto border border-gray-300 shadow-lg p-8 print-content">
+            <div className="bg-white min-h-[210mm] w-[280mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
               {/* Header with Logo */}
-              <div className="text-center mb-8">
+              <div className="text-center mb-6">
                 <img
                   src={logoFarmap}
                   alt="Farmap Industry"
@@ -158,11 +158,11 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               </div>
 
               {/* Order Details - Horizontal Layout */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
                   Dettagli Ordine
                 </h2>
-                <div className="grid grid-cols-4 gap-6 text-sm">
+                <div className="grid grid-cols-4 gap-4 text-sm">
                   <div>
                     <strong>Tipo di Stampa:</strong><br/>
                     {order.print_type?.toUpperCase()}
@@ -183,7 +183,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               </div>
 
               {/* Products Table */}
-              <div className="mb-8">
+              <div className="mb-6">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
                   Prodotti
                 </h2>
@@ -232,8 +232,8 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="mt-8 border-t border-gray-300 pt-6">
-                <div className="grid grid-cols-3 gap-8 text-sm">
+              <div className="mt-6 border-t border-gray-300 pt-4">
+                <div className="grid grid-cols-3 gap-6 text-sm">
                   <div>
                     <strong>Firma Responsabile:</strong>
                     <div className="border-b border-gray-300 mt-6 h-6"></div>
@@ -274,15 +274,16 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
             left: 50%;
             top: 50%;
             transform: translate(-50%, -50%);
-            width: 297mm;
-            height: 210mm;
+            width: 280mm;
+            height: 200mm;
             background: white !important;
             color: black !important;
-            font-size: 12px;
-            line-height: 1.4;
+            font-size: 11px;
+            line-height: 1.3;
             box-shadow: none !important;
             border: 1px solid #ccc !important;
-            padding: 20px !important;
+            padding: 15px !important;
+            overflow: hidden;
           }
           
           .no-print {

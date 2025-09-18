@@ -204,7 +204,7 @@ Cordiali saluti
       {selectedOrder && (
         <OrderDetailsModal
           order={selectedOrder}
-          isOpen={!!selectedOrder}
+          isOpen={false}
           onClose={() => setSelectedOrder(null)}
         />
       )}
