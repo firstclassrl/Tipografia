@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, CheckCircle } from 'lucide-react';
 import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
@@ -35,7 +35,17 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
+  // Debug useEffect
+  useEffect(() => {
+    console.log('MultiProductModal state changed:', {
+      isProductModalOpen,
+      currentProduct: !!currentProduct,
+      productsCount: products.length
+    });
+  }, [isProductModalOpen, currentProduct, products.length]);
+
   const addNewProduct = () => {
+    console.log('addNewProduct called');
     const newProduct: ProductItem = {
       id: Date.now().toString(),
       eanCode: '',
@@ -50,6 +60,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
     };
     setCurrentProduct(newProduct);
     setIsProductModalOpen(true);
+    console.log('Modal should open now');
   };
 
   const saveProduct = (productData: any) => {
@@ -142,8 +153,12 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
             {/* Add Product Button */}
             <div className="mb-6">
               <button
-                onClick={addNewProduct}
-                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-medium"
+                onClick={() => {
+                  alert('Test button clicked!');
+                  addNewProduct();
+                }}
+                className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-medium cursor-pointer"
+                style={{ zIndex: 9999, position: 'relative' }}
               >
                 <Plus className="h-5 w-5" />
                 Aggiungi Prodotto
