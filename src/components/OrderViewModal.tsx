@@ -148,7 +148,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                   className="h-16 w-auto mx-auto mb-4"
                 />
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  ORDINE DI PRODUZIONE
+                  ORDINE DI STAMPA
                 </h1>
                 <div className="flex justify-center gap-8 text-sm text-gray-600">
                   <span><strong>Ordine:</strong> {order.order_number}</span>
