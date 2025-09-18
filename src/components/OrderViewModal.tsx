@@ -2,6 +2,8 @@ import React from 'react';
 import { X, Printer, Download } from 'lucide-react';
 import { Order, OrderDetails } from '../lib/supabase';
 import logoFarmap from '../assets/logo farmap industry.png';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 interface OrderViewModalProps {
   isOpen: boolean;
@@ -39,7 +41,6 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
   };
 
   const handleDownload = async () => {
-    // Implementazione download PDF usando html2canvas e jsPDF
     try {
       const element = document.querySelector('.print-content') as HTMLElement;
       if (!element) {
@@ -47,39 +48,46 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
         return;
       }
 
-      // Per ora usiamo la funzione di stampa del browser con orientamento landscape
-      // TODO: Implementare generazione PDF con jsPDF
-      const printWindow = window.open('', '_blank');
-      if (printWindow) {
-        printWindow.document.write(`
-          <html>
-            <head>
-              <title>Ordine ${order.order_number}</title>
-              <style>
-                @page { size: A4 landscape; margin: 1cm; }
-                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
-                .print-content { width: 100%; }
-                img { max-width: 100%; height: auto; }
-                table { width: 100%; border-collapse: collapse; }
-                th, td { border: 1px solid #333; padding: 8px; text-align: left; }
-                th { background-color: #f5f5f5; }
-                .header { text-align: center; margin-bottom: 30px; }
-                .details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
-                .footer { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
-                .footer div { border-bottom: 1px solid #333; padding-bottom: 20px; }
-              </style>
-            </head>
-            <body>
-              ${element.outerHTML}
-            </body>
-          </html>
-        `);
-        printWindow.document.close();
-        printWindow.print();
-      }
+      // Mostra messaggio di caricamento
+      alert('📄 Generazione PDF in corso...\n\nAttendere prego...');
+
+      // Cattura il contenuto come immagine
+      const canvas = await html2canvas(element, {
+        scale: 2, // Alta qualità
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff'
+      });
+
+      // Crea PDF in formato A4 landscape
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+
+      // Dimensioni A4 landscape in mm
+      const pdfWidth = 297;
+      const pdfHeight = 210;
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const finalWidth = imgWidth * ratio;
+      const finalHeight = imgHeight * ratio;
+
+      // Centra l'immagine nel PDF
+      const x = (pdfWidth - finalWidth) / 2;
+      const y = (pdfHeight - finalHeight) / 2;
+
+      // Aggiungi l'immagine al PDF
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, finalWidth, finalHeight);
+
+      // Scarica il PDF
+      pdf.save(`Ordine_${order.order_number}.pdf`);
+      
     } catch (error) {
       console.error('Errore nel download:', error);
-      alert('❌ Errore\n\nImpossibile scaricare il PDF. Usa il pulsante Stampa.');
+      alert('❌ Errore\n\nImpossibile scaricare il PDF. Riprova più tardi.');
     }
   };
 
@@ -259,13 +267,18 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           
           .print-content {
             position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 297mm;
+            height: 210mm;
             background: white !important;
             color: black !important;
             font-size: 12px;
             line-height: 1.4;
+            box-shadow: none !important;
+            border: 1px solid #ccc !important;
+            padding: 20px !important;
           }
           
           .no-print {
@@ -280,6 +293,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 11px;
           }
           
           .print-content th,
@@ -292,6 +306,30 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content th {
             background-color: #f5f5f5 !important;
             font-weight: bold;
+          }
+          
+          .print-content h1,
+          .print-content h2 {
+            color: black !important;
+          }
+          
+          .print-content .header {
+            text-align: center;
+            margin-bottom: 20px;
+          }
+          
+          .print-content .details {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 15px 0;
+          }
+          
+          .print-content .footer {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
           }
         }
       `}</style>
