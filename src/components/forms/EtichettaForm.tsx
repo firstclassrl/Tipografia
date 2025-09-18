@@ -4,7 +4,8 @@ import { CheckCircle } from 'lucide-react';
 
 interface EtichettaFormProps {
   orderNumber: string;
-  onSave: () => void;
+  onSave: (data?: any) => void;
+  isMultiProduct?: boolean;
 }
 
 interface FormData {
@@ -18,7 +19,7 @@ interface FormData {
   quantity: string;
 }
 
-export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSave }) => {
+export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSave, isMultiProduct = false }) => {
   const [formData, setFormData] = useState<FormData>({
     eanCode: '',
     clientName: '',
@@ -60,37 +61,41 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
     setLoading(true);
 
     try {
-      // Crea l'ordine principale
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          order_number: orderNumber,
-          print_type: 'etichetta',
-          status: 'bozza'
-        })
-        .select()
-        .single();
+      if (isMultiProduct) {
+        // In modalità multi-prodotto, solo passa i dati al parent
+        onSave(formData);
+      } else {
+        // Salvataggio singolo (logica originale)
+        const { data: orderData, error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            order_number: orderNumber,
+            print_type: 'etichetta',
+            status: 'bozza'
+          })
+          .select()
+          .single();
 
-      if (orderError) throw orderError;
+        if (orderError) throw orderError;
 
-      // Crea i dettagli dell'ordine
-      const { error: detailsError } = await supabase
-        .from('order_details')
-        .insert({
-          order_id: orderData.id,
-          ean_code: formData.eanCode,
-          client_name: formData.clientName,
-          product_name: formData.productName,
-          measurements: formData.measurements || null,
-          lot_number: formData.lotNumber || null,
-          expiry_date: formData.expiryDate ? `${formData.expiryDate.split('/')[1]}-${formData.expiryDate.split('/')[0]}-01` : null,
-          production_date: formData.productionDate ? `${formData.productionDate.split('/')[1]}-${formData.productionDate.split('/')[0]}-01` : null,
-          quantity: formData.quantity ? parseInt(formData.quantity) : 1
-        });
+        const { error: detailsError } = await supabase
+          .from('order_details')
+          .insert({
+            order_id: orderData.id,
+            ean_code: formData.eanCode,
+            client_name: formData.clientName,
+            product_name: formData.productName,
+            measurements: formData.measurements || null,
+            lot_number: formData.lotNumber || null,
+            expiry_date: formData.expiryDate ? `${formData.expiryDate.split('/')[1]}-${formData.expiryDate.split('/')[0]}-01` : null,
+            production_date: formData.productionDate ? `${formData.productionDate.split('/')[1]}-${formData.productionDate.split('/')[0]}-01` : null,
+            quantity: formData.quantity ? parseInt(formData.quantity) : 1
+          });
 
-      if (detailsError) throw detailsError;
+        if (detailsError) throw detailsError;
 
-      onSave();
+        onSave();
+      }
     } catch (error: any) {
       console.error('Errore nel salvare l\'ordine:', error);
       

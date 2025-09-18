@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { X, FileText, Package, Layers } from 'lucide-react';
+import { X, FileText, Package, Layers, Plus } from 'lucide-react';
 import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
 import { BlisterForm } from './forms/BlisterForm';
+import { MultiProductModal } from './MultiProductModal';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -14,6 +15,7 @@ export type PrintType = 'etichetta' | 'astuccio' | 'blister';
 
 export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNumber }) => {
   const [selectedPrintType, setSelectedPrintType] = useState<PrintType | null>(null);
+  const [isMultiProduct, setIsMultiProduct] = useState(false);
 
   if (!isOpen) return null;
 
@@ -83,26 +85,58 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNu
             </div>
           ) : (
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <button
-                  onClick={handleBackToSelection}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all duration-300 border border-white/20 hover:border-white/40"
-                >
-                  ← Torna alla selezione
-                </button>
-                <h3 className="text-2xl font-bold text-white capitalize">
-                  Dettagli {selectedPrintType}
-                </h3>
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleBackToSelection}
+                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all duration-300 border border-white/20 hover:border-white/40"
+                  >
+                    ← Torna alla selezione
+                  </button>
+                  <h3 className="text-2xl font-bold text-white capitalize">
+                    Dettagli {selectedPrintType}
+                  </h3>
+                </div>
+                
+                {/* Multi-product toggle */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setIsMultiProduct(!isMultiProduct)}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 border ${
+                      isMultiProduct 
+                        ? 'bg-red-500/20 border-red-500/50 text-red-300 hover:bg-red-500/30' 
+                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
+                    }`}
+                  >
+                    <Plus className="h-4 w-4" />
+                    {isMultiProduct ? 'Multi-prodotto' : 'Singolo'}
+                  </button>
+                </div>
               </div>
 
-              {selectedPrintType === 'etichetta' && (
-                <EtichettaForm orderNumber={orderNumber} onSave={handleOrderSaved} />
-              )}
-              {selectedPrintType === 'astuccio' && (
-                <AstuccioForm orderNumber={orderNumber} onSave={handleOrderSaved} />
-              )}
-              {selectedPrintType === 'blister' && (
-                <BlisterForm orderNumber={orderNumber} onSave={handleOrderSaved} />
+              {isMultiProduct ? (
+                <MultiProductModal
+                  isOpen={true}
+                  onClose={() => {
+                    setIsMultiProduct(false);
+                    setSelectedPrintType(null);
+                    onClose();
+                  }}
+                  orderNumber={orderNumber}
+                  printType={selectedPrintType}
+                />
+              ) : (
+                <>
+                  {selectedPrintType === 'etichetta' && (
+                    <EtichettaForm orderNumber={orderNumber} onSave={handleOrderSaved} />
+                  )}
+                  {selectedPrintType === 'astuccio' && (
+                    <AstuccioForm orderNumber={orderNumber} onSave={handleOrderSaved} />
+                  )}
+                  {selectedPrintType === 'blister' && (
+                    <BlisterForm orderNumber={orderNumber} onSave={handleOrderSaved} />
+                  )}
+                </>
               )}
             </div>
           )}

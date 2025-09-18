@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Plus, PrinterIcon, Eye } from 'lucide-react';
 import { OrderModal } from '../components/OrderModal';
 import { supabase } from '../lib/supabase';
+import logoFarmap from '../assets/logo farmap industry.png';
 
 export const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,7 +64,7 @@ export const HomePage: React.FC = () => {
           <div className="flex items-center justify-center mb-8">
             <div className="relative">
               <img 
-                src="/src/assets/logo farmap industry.png" 
+                src={logoFarmap} 
                 alt="Farmap Industry" 
                 className="h-20 w-auto filter drop-shadow-2xl"
               />
