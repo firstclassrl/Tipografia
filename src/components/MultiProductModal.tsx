@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { X, Plus, Trash2, CheckCircle } from 'lucide-react';
 import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
@@ -35,17 +35,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
 
-  // Debug useEffect
-  useEffect(() => {
-    console.log('MultiProductModal state changed:', {
-      isProductModalOpen,
-      currentProduct: !!currentProduct,
-      productsCount: products.length
-    });
-  }, [isProductModalOpen, currentProduct, products.length]);
-
   const addNewProduct = () => {
-    console.log('addNewProduct called');
     const newProduct: ProductItem = {
       id: Date.now().toString(),
       eanCode: '',
@@ -60,7 +50,6 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
     };
     setCurrentProduct(newProduct);
     setIsProductModalOpen(true);
-    console.log('Modal should open now');
   };
 
   const saveProduct = (productData: any) => {
@@ -240,7 +229,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       {/* Product Form Modal */}
       {isProductModalOpen && currentProduct && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-60">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
