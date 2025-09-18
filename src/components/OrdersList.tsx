@@ -155,22 +155,9 @@ export const OrdersList: React.FC = () => {
       // Genera il PDF
       const pdfBlob = await generatePDF(order);
       
-      // Crea URL per il PDF
-      const pdfUrl = URL.createObjectURL(pdfBlob);
-      
-      // Crea un link temporaneo per il download
-      const link = document.createElement('a');
-      link.href = pdfUrl;
-      link.download = `Ordine_${order.order_number}.pdf`;
-      document.body.appendChild(link);
-      
-      // Scarica automaticamente il PDF
-      link.click();
-      document.body.removeChild(link);
-      
       // Prepara il contenuto della mail
-      const subject = encodeURIComponent(`Ordine Tipografia ${order.order_number}`);
-      const body = encodeURIComponent(`
+      const subject = `Ordine Tipografia ${order.order_number}`;
+      const body = `
 Gentile Tipografia,
 
 in allegato trovate l'ordine ${order.order_number} per la stampa di ${order.print_type}.
@@ -181,11 +168,34 @@ Dettagli ordine:
 - Numero prodotti: ${order.order_details.length}
 
 Cordiali saluti
-      `.trim());
+      `.trim();
       
-      // Apri la mail
-      const mailtoUrl = `mailto:tipografia@example.com?subject=${subject}&body=${body}`;
-      window.open(mailtoUrl);
+      // Crea il file PDF
+      const pdfFile = new File([pdfBlob], `Ordine_${order.order_number}.pdf`, {
+        type: 'application/pdf'
+      });
+      
+      // Prova con Web Share API se disponibile
+      if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        await navigator.share({
+          title: subject,
+          text: body,
+          files: [pdfFile]
+        });
+      } else {
+        // Fallback: apre mailto con istruzioni per allegare il PDF scaricato
+        const pdfUrl = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = pdfUrl;
+        link.download = `Ordine_${order.order_number}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        // Apri mailto
+        const mailtoUrl = `mailto:tipografia@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\nNOTA: Il PDF è stato scaricato automaticamente. Allegalo prima di inviare.')}`;
+        window.open(mailtoUrl);
+      }
       
     } catch (error) {
       console.error('Errore nell\'invio email:', error);
