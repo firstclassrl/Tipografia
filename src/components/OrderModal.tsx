@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-import { X, FileText, Package, Layers, Plus } from 'lucide-react';
-import { EtichettaForm } from './forms/EtichettaForm';
-import { AstuccioForm } from './forms/AstuccioForm';
-import { BlisterForm } from './forms/BlisterForm';
+import { X, FileText, Package, Layers } from 'lucide-react';
 import { MultiProductModal } from './MultiProductModal';
 
 interface OrderModalProps {
@@ -15,9 +12,12 @@ export type PrintType = 'etichetta' | 'astuccio' | 'blister';
 
 export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNumber }) => {
   const [selectedPrintType, setSelectedPrintType] = useState<PrintType | null>(null);
-  const [isMultiProduct, setIsMultiProduct] = useState(false);
 
   if (!isOpen) return null;
+
+  const handlePrintTypeSelected = (printType: PrintType) => {
+    setSelectedPrintType(printType);
+  };
 
   const handleBackToSelection = () => {
     setSelectedPrintType(null);
@@ -29,8 +29,8 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNu
   };
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="backdrop-blur-xl bg-black/40 border border-white/20 rounded-3xl max-w-4xl w-full max-h-[90vh] overflow-hidden shadow-2xl">
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="backdrop-blur-xl bg-black/40 border border-white/20 w-full h-full flex flex-col">
         <div className="flex items-center justify-between p-8 border-b border-white/20 bg-gradient-to-r from-red-500/10 to-black/20">
           <div>
             <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent">Nuovo Ordine</h2>
@@ -44,13 +44,13 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNu
           </button>
         </div>
 
-        <div className="p-8 overflow-y-auto max-h-[calc(90vh-140px)]">
+        <div className="flex-1 p-8 overflow-y-auto">
           {!selectedPrintType ? (
             <div>
               <h3 className="text-2xl font-bold text-white mb-8 text-center">Seleziona il tipo di stampa</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <button
-                  onClick={() => setSelectedPrintType('etichetta')}
+                  onClick={() => handlePrintTypeSelected('etichetta')}
                   className="group p-8 backdrop-blur-xl bg-white/5 border-2 border-white/20 rounded-2xl hover:border-red-500 hover:bg-white/10 hover:shadow-2xl hover:shadow-red-500/20 transition-all duration-500 text-center hover:-translate-y-2"
                 >
                   <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-red-500/20 to-red-700/20 rounded-full flex items-center justify-center group-hover:from-red-500/40 group-hover:to-red-700/40 transition-all duration-300 border border-red-500/30">
@@ -61,7 +61,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNu
                 </button>
 
                 <button
-                  onClick={() => setSelectedPrintType('astuccio')}
+                  onClick={() => handlePrintTypeSelected('astuccio')}
                   className="group p-8 backdrop-blur-xl bg-white/5 border-2 border-white/20 rounded-2xl hover:border-white hover:bg-white/10 hover:shadow-2xl hover:shadow-white/20 transition-all duration-500 text-center hover:-translate-y-2"
                 >
                   <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-white/10 to-white/5 rounded-full flex items-center justify-center group-hover:from-white/20 group-hover:to-white/10 transition-all duration-300 border border-white/30">
@@ -72,7 +72,7 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNu
                 </button>
 
                 <button
-                  onClick={() => setSelectedPrintType('blister')}
+                  onClick={() => handlePrintTypeSelected('blister')}
                   className="group p-8 backdrop-blur-xl bg-white/5 border-2 border-white/20 rounded-2xl hover:border-black hover:bg-black/20 hover:shadow-2xl hover:shadow-black/40 transition-all duration-500 text-center hover:-translate-y-2"
                 >
                   <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-black/20 to-black/10 rounded-full flex items-center justify-center group-hover:from-black/40 group-hover:to-black/20 transition-all duration-300 border border-red-500/30">
@@ -84,61 +84,15 @@ export const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderNu
               </div>
             </div>
           ) : (
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleBackToSelection}
-                    className="px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl font-medium transition-all duration-300 border border-white/20 hover:border-white/40"
-                  >
-                    ← Torna alla selezione
-                  </button>
-                  <h3 className="text-2xl font-bold text-white capitalize">
-                    Dettagli {selectedPrintType}
-                  </h3>
-                </div>
-                
-                {/* Multi-product toggle */}
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setIsMultiProduct(!isMultiProduct)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-300 border ${
-                      isMultiProduct 
-                        ? 'bg-red-500/20 border-red-500/50 text-red-300 hover:bg-red-500/30' 
-                        : 'bg-white/10 border-white/20 text-white hover:bg-white/20'
-                    }`}
-                  >
-                    <Plus className="h-4 w-4" />
-                    {isMultiProduct ? 'Multi-prodotto' : 'Singolo'}
-                  </button>
-                </div>
-              </div>
-
-              {isMultiProduct ? (
-                <MultiProductModal
-                  isOpen={true}
-                  onClose={() => {
-                    setIsMultiProduct(false);
-                    setSelectedPrintType(null);
-                    onClose();
-                  }}
-                  orderNumber={orderNumber}
-                  printType={selectedPrintType}
-                />
-              ) : (
-                <>
-                  {selectedPrintType === 'etichetta' && (
-                    <EtichettaForm orderNumber={orderNumber} onSave={handleOrderSaved} />
-                  )}
-                  {selectedPrintType === 'astuccio' && (
-                    <AstuccioForm orderNumber={orderNumber} onSave={handleOrderSaved} />
-                  )}
-                  {selectedPrintType === 'blister' && (
-                    <BlisterForm orderNumber={orderNumber} onSave={handleOrderSaved} />
-                  )}
-                </>
-              )}
-            </div>
+            <MultiProductModal
+              isOpen={true}
+              onClose={() => {
+                setSelectedPrintType(null);
+                onClose();
+              }}
+              orderNumber={orderNumber}
+              printType={selectedPrintType}
+            />
           )}
         </div>
       </div>

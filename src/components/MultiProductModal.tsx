@@ -119,8 +119,8 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-white/10 w-full max-w-6xl max-h-[90vh] overflow-hidden">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div>
@@ -138,7 +138,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+          <div className="flex-1 p-6 overflow-y-auto">
             {/* Add Product Button */}
             <div className="mb-6">
               <button
@@ -225,8 +225,8 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       {/* Product Form Modal */}
       {isProductModalOpen && currentProduct && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-60 p-4">
-          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 rounded-3xl shadow-2xl border border-white/10 w-full max-w-4xl max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-60">
+          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
                 Aggiungi Prodotto
@@ -238,7 +238,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 <X className="h-6 w-6 text-white" />
               </button>
             </div>
-            <div className="p-6 overflow-y-auto max-h-[calc(90vh-140px)]">
+            <div className="flex-1 p-6 overflow-y-auto">
               {printType === 'etichetta' && (
                 <EtichettaForm
                   orderNumber={orderNumber}
