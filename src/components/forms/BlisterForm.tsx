@@ -83,8 +83,8 @@ export const BlisterForm: React.FC<BlisterFormProps> = ({ orderNumber, onSave })
           product_name: formData.productName,
           measurements: formData.measurements || null,
           lot_number: formData.lotNumber || null,
-          expiry_date: formData.expiryDate ? `${formData.expiryDate}-01` : null,
-          production_date: formData.productionDate ? `${formData.productionDate}-01` : null,
+          expiry_date: formData.expiryDate ? `${formData.expiryDate.split('/')[1]}-${formData.expiryDate.split('/')[0]}-01` : null,
+          production_date: formData.productionDate ? `${formData.productionDate.split('/')[1]}-${formData.productionDate.split('/')[0]}-01` : null,
           quantity: formData.quantity ? parseInt(formData.quantity) : 1
         });
 
