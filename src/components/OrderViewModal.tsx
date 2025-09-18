@@ -38,16 +38,55 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
     window.print();
   };
 
-  const handleDownload = () => {
-    // Per ora usiamo la funzione di stampa del browser
-    // In futuro si potrebbe implementare un download PDF
-    window.print();
+  const handleDownload = async () => {
+    // Implementazione download PDF usando html2canvas e jsPDF
+    try {
+      const element = document.querySelector('.print-content') as HTMLElement;
+      if (!element) {
+        alert('❌ Errore\n\nImpossibile trovare il contenuto da scaricare.');
+        return;
+      }
+
+      // Per ora usiamo la funzione di stampa del browser con orientamento landscape
+      // TODO: Implementare generazione PDF con jsPDF
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
+        printWindow.document.write(`
+          <html>
+            <head>
+              <title>Ordine ${order.order_number}</title>
+              <style>
+                @page { size: A4 landscape; margin: 1cm; }
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+                .print-content { width: 100%; }
+                img { max-width: 100%; height: auto; }
+                table { width: 100%; border-collapse: collapse; }
+                th, td { border: 1px solid #333; padding: 8px; text-align: left; }
+                th { background-color: #f5f5f5; }
+                .header { text-align: center; margin-bottom: 30px; }
+                .details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+                .footer { margin-top: 30px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+                .footer div { border-bottom: 1px solid #333; padding-bottom: 20px; }
+              </style>
+            </head>
+            <body>
+              ${element.outerHTML}
+            </body>
+          </html>
+        `);
+        printWindow.document.close();
+        printWindow.print();
+      }
+    } catch (error) {
+      console.error('Errore nel download:', error);
+      alert('❌ Errore\n\nImpossibile scaricare il PDF. Usa il pulsante Stampa.');
+    }
   };
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-        <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-8">
+        <div className="bg-white w-full max-w-7xl max-h-[95vh] overflow-hidden rounded-xl shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center gap-3">
@@ -87,8 +126,8 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           </div>
 
           {/* Content - A4 Landscape Layout */}
-          <div className="p-8 overflow-y-auto max-h-[calc(90vh-100px)]">
-            <div className="bg-white min-h-[297mm] w-[210mm] mx-auto border border-gray-300 shadow-lg p-8">
+          <div className="p-8 overflow-y-auto max-h-[calc(95vh-100px)]">
+            <div className="bg-white min-h-[210mm] w-[297mm] mx-auto border border-gray-300 shadow-lg p-8 print-content">
               {/* Header with Logo */}
               <div className="text-center mb-8">
                 <img
@@ -106,23 +145,27 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                 </div>
               </div>
 
-              {/* Order Details */}
+              {/* Order Details - Horizontal Layout */}
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
                   Dettagli Ordine
                 </h2>
-                <div className="grid grid-cols-2 gap-4 text-sm">
+                <div className="grid grid-cols-4 gap-6 text-sm">
                   <div>
-                    <strong>Tipo di Stampa:</strong> {order.print_type?.toUpperCase()}
+                    <strong>Tipo di Stampa:</strong><br/>
+                    {order.print_type?.toUpperCase()}
                   </div>
                   <div>
-                    <strong>Numero Prodotti:</strong> {orderDetails.length}
+                    <strong>Numero Prodotti:</strong><br/>
+                    {orderDetails.length}
                   </div>
                   <div>
-                    <strong>Data Creazione:</strong> {formatDate(order.created_at)}
+                    <strong>Data Creazione:</strong><br/>
+                    {formatDate(order.created_at)}
                   </div>
                   <div>
-                    <strong>Ultimo Aggiornamento:</strong> {formatDate(order.updated_at)}
+                    <strong>Ultimo Aggiornamento:</strong><br/>
+                    {formatDate(order.updated_at)}
                   </div>
                 </div>
               </div>
@@ -177,19 +220,19 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               </div>
 
               {/* Footer */}
-              <div className="mt-12 border-t border-gray-300 pt-6">
+              <div className="mt-8 border-t border-gray-300 pt-6">
                 <div className="grid grid-cols-3 gap-8 text-sm">
                   <div>
                     <strong>Firma Responsabile:</strong>
-                    <div className="border-b border-gray-300 mt-8 h-8"></div>
+                    <div className="border-b border-gray-300 mt-6 h-6"></div>
                   </div>
                   <div>
                     <strong>Data Consegna:</strong>
-                    <div className="border-b border-gray-300 mt-8 h-8"></div>
+                    <div className="border-b border-gray-300 mt-6 h-6"></div>
                   </div>
                   <div>
                     <strong>Note:</strong>
-                    <div className="border-b border-gray-300 mt-8 h-8"></div>
+                    <div className="border-b border-gray-300 mt-6 h-6"></div>
                   </div>
                 </div>
               </div>
@@ -199,22 +242,56 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
       </div>
 
       {/* Print Styles */}
-      <style jsx>{`
+      <style jsx global>{`
         @media print {
+          @page {
+            size: A4 landscape;
+            margin: 1cm;
+          }
+          
           body * {
             visibility: hidden;
           }
+          
           .print-content, .print-content * {
             visibility: visible;
           }
+          
           .print-content {
             position: absolute;
             left: 0;
             top: 0;
             width: 100%;
+            background: white !important;
+            color: black !important;
+            font-size: 12px;
+            line-height: 1.4;
           }
+          
           .no-print {
             display: none !important;
+          }
+          
+          .print-content img {
+            max-width: 100%;
+            height: auto;
+          }
+          
+          .print-content table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          
+          .print-content th,
+          .print-content td {
+            border: 1px solid #333;
+            padding: 4px;
+            text-align: left;
+          }
+          
+          .print-content th {
+            background-color: #f5f5f5 !important;
+            font-weight: bold;
           }
         }
       `}</style>
