@@ -3,6 +3,9 @@ import { supabase, OrderWithDetails } from '../lib/supabase';
 import { FileText, Mail, Calendar, Package, Eye, Trash2 } from 'lucide-react';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { OrderViewModal } from './OrderViewModal';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import logoFarmap from '../assets/logo farmap industry.png';
 
 export const OrdersList: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);

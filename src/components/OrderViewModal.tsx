@@ -147,7 +147,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           <div className="p-8 overflow-y-auto max-h-[calc(85vh-120px)]">
             <div className="bg-white w-[280mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
               {/* Header with Logo */}
-              <div className="text-center mb-6">
+              <div className="text-center mb-4">
                 <img
                   src={logoFarmap}
                   alt="Farmap Industry"
@@ -164,7 +164,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               </div>
 
               {/* Order Details - Horizontal Layout */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
                   Dettagli Ordine
                 </h2>
@@ -189,7 +189,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               </div>
 
               {/* Products Table */}
-              <div className="mb-6">
+              <div className="mb-4">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
                   Prodotti
                 </h2>
@@ -237,6 +237,13 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                 </div>
               </div>
 
+              {/* Spazio per linee etichette */}
+              <div className="mt-8 min-h-[60px] border border-gray-200 border-dashed label-space">
+                <div className="text-center text-gray-500 text-xs py-4">
+                  Spazio per linee etichette
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -261,7 +268,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content {
             position: absolute;
             left: 50%;
-            top: 20px;
+            top: 5px;
             transform: translateX(-50%);
             width: 280mm;
             height: auto;
@@ -271,8 +278,9 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
             line-height: 1.3;
             box-shadow: none !important;
             border: 1px solid #ccc !important;
-            padding: 15px !important;
+            padding: 10px !important;
             overflow: hidden;
+            margin-bottom: 20px;
           }
           
           .no-print {
@@ -318,6 +326,17 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin: 15px 0;
+          }
+          
+          .print-content .label-space {
+            margin-top: 20px;
+            min-height: 60px;
+            border: 1px dashed #ccc !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666 !important;
+            font-size: 10px !important;
           }
         }
       `}</style>
