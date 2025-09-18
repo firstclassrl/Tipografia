@@ -36,37 +36,171 @@ export const OrdersList: React.FC = () => {
     }
   };
 
-  const generatePDF = (order: OrderWithDetails) => {
-    // Simula la generazione di un PDF (in una implementazione reale useresti una libreria come jsPDF)
-    const pdfContent = `Ordine ${order.order_number}\n${JSON.stringify(order.order_details, null, 2)}`;
-    const blob = new Blob([pdfContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `ordine-${order.order_number}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const generatePDF = async (order: OrderWithDetails): Promise<Blob> => {
+    try {
+      // Crea un elemento temporaneo per il contenuto PDF
+      const tempDiv = document.createElement('div');
+      tempDiv.className = 'print-content';
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.top = '-9999px';
+      tempDiv.style.width = '280mm';
+      tempDiv.style.backgroundColor = 'white';
+      tempDiv.style.padding = '15px';
+      tempDiv.style.fontSize = '11px';
+      tempDiv.style.lineHeight = '1.3';
+      
+      // Popola il contenuto
+      tempDiv.innerHTML = `
+        <div class="text-center mb-4">
+          <img src="${logoFarmap}" alt="Farmap Industry" style="height: 40px; width: auto; margin: 0 auto 15px;">
+          <h1 style="font-size: 24px; font-weight: bold; color: black; margin-bottom: 10px;">ORDINE DI STAMPA</h1>
+          <div style="display: flex; justify-content: center; gap: 30px; font-size: 12px; color: #666;">
+            <span><strong>Ordine:</strong> ${order.order_number}</span>
+            <span><strong>Data:</strong> ${new Date(order.created_at).toLocaleDateString('it-IT')}</span>
+            <span><strong>Stato:</strong> ${order.status}</span>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h2 style="font-size: 18px; font-weight: bold; color: black; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Dettagli Ordine</h2>
+          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; font-size: 11px;">
+            <div><strong>Tipo di Stampa:</strong><br/>${order.print_type?.toUpperCase()}</div>
+            <div><strong>Numero Prodotti:</strong><br/>${order.order_details.length}</div>
+            <div><strong>Data Creazione:</strong><br/>${new Date(order.created_at).toLocaleDateString('it-IT')}</div>
+            <div><strong>Ultimo Aggiornamento:</strong><br/>${new Date(order.updated_at).toLocaleDateString('it-IT')}</div>
+          </div>
+        </div>
+        
+        <div class="mb-4">
+          <h2 style="font-size: 18px; font-weight: bold; color: black; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Prodotti</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
+            <thead>
+              <tr style="background-color: #f5f5f5;">
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Prodotto</th>
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Cliente</th>
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">EAN</th>
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Lotto</th>
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Scadenza</th>
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Produzione</th>
+                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Qtà</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.order_details.map(detail => `
+                <tr>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.product_name || 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.client_name || 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.ean_code || 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.lot_number || 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.expiry_date ? new Date(detail.expiry_date).toLocaleDateString('it-IT') : 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.production_date ? new Date(detail.production_date).toLocaleDateString('it-IT') : 'N/A'}</td>
+                  <td style="border: 1px solid #333; padding: 4px;">${detail.quantity || 'N/A'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="margin-top: 20px; min-height: 60px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #666; font-size: 10px;">
+          Spazio per linee etichette
+        </div>
+      `;
+      
+      document.body.appendChild(tempDiv);
+      
+      // Cattura il contenuto come immagine
+      const canvas = await html2canvas(tempDiv, {
+        scale: 1,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 1200,
+        height: 600
+      });
+      
+      // Rimuovi l'elemento temporaneo
+      document.body.removeChild(tempDiv);
+      
+      // Crea PDF
+      const pdf = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      const pdfWidth = 297;
+      const pdfHeight = 210;
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
+      const finalWidth = imgWidth * ratio;
+      const finalHeight = imgHeight * ratio;
+      
+      const x = (pdfWidth - finalWidth) / 2;
+      const y = 10;
+      
+      const imageData = canvas.toDataURL('image/jpeg', 0.8);
+      pdf.addImage(imageData, 'JPEG', x, y, finalWidth, finalHeight);
+      
+      // Converte in Blob
+      const pdfBlob = pdf.output('blob');
+      return pdfBlob;
+      
+    } catch (error) {
+      console.error('Errore nella generazione PDF:', error);
+      throw error;
+    }
   };
 
-  const sendEmail = (order: OrderWithDetails) => {
-    generatePDF(order);
-    const subject = encodeURIComponent(`Ordine Tipografia ${order.order_number}`);
-    const body = encodeURIComponent(`
+  const sendEmail = async (order: OrderWithDetails) => {
+    try {
+      // Mostra messaggio di caricamento
+      alert('📧 Preparazione email in corso...\n\nGenerazione PDF allegato...');
+      
+      // Genera il PDF
+      const pdfBlob = await generatePDF(order);
+      
+      // Crea URL per il PDF
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      
+      // Crea un link temporaneo per il download
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `Ordine_${order.order_number}.pdf`;
+      
+      // Prepara il contenuto della mail
+      const subject = encodeURIComponent(`Ordine Tipografia ${order.order_number}`);
+      const body = encodeURIComponent(`
 Gentile Tipografia,
 
 in allegato trovate l'ordine ${order.order_number} per la stampa di ${order.print_type}.
 
-Tipo di stampa: ${order.print_type}
-Data ordine: ${new Date(order.created_at).toLocaleDateString('it-IT')}
+Dettagli ordine:
+- Tipo di stampa: ${order.print_type}
+- Data ordine: ${new Date(order.created_at).toLocaleDateString('it-IT')}
+- Numero prodotti: ${order.order_details.length}
+
+Il PDF allegato contiene tutti i dettagli completi dell'ordine.
 
 Cordiali saluti
-    `.trim());
-    
-    const mailtoUrl = `mailto:tipografia@example.com?subject=${subject}&body=${body}`;
-    window.location.href = mailtoUrl;
+      `.trim());
+      
+      // Apri la mail (il PDF dovrà essere allegato manualmente)
+      const mailtoUrl = `mailto:tipografia@example.com?subject=${subject}&body=${body}`;
+      window.open(mailtoUrl);
+      
+      // Scarica automaticamente il PDF per allegarlo
+      setTimeout(() => {
+        link.click();
+        alert('✅ PDF generato!\n\nIl PDF è stato scaricato automaticamente.\nAllegalo alla mail che si è aperta.');
+      }, 1000);
+      
+    } catch (error) {
+      console.error('Errore nell\'invio email:', error);
+      alert('❌ Errore\n\nImpossibile preparare l\'email. Riprova più tardi.');
+    }
   };
 
   const deleteOrder = async (order: OrderWithDetails) => {
