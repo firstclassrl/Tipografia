@@ -237,12 +237,6 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                 </div>
               </div>
 
-              {/* Spazio per linee etichette */}
-              <div className="mt-8 min-h-[60px] border border-gray-200 border-dashed label-space">
-                <div className="text-center text-gray-500 text-xs py-4">
-                  Spazio per linee etichette
-                </div>
-              </div>
 
             </div>
           </div>
@@ -326,17 +320,6 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin: 15px 0;
-          }
-          
-          .print-content .label-space {
-            margin-top: 20px;
-            min-height: 60px;
-            border: 1px dashed #ccc !important;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666 !important;
-            font-size: 10px !important;
           }
         }
       `}</style>

@@ -101,10 +101,6 @@ export const OrdersList: React.FC = () => {
             </tbody>
           </table>
         </div>
-        
-        <div style="margin-top: 20px; min-height: 60px; border: 1px dashed #ccc; display: flex; align-items: center; justify-content: center; color: #666; font-size: 10px;">
-          Spazio per linee etichette
-        </div>
       `;
       
       document.body.appendChild(tempDiv);
