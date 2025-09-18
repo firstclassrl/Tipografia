@@ -85,8 +85,8 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-8">
-        <div className="bg-white w-full max-w-7xl max-h-[95vh] overflow-hidden rounded-xl shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 py-12 px-8">
+        <div className="bg-white w-full max-w-7xl max-h-[85vh] overflow-hidden rounded-xl shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center gap-3">
@@ -126,7 +126,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           </div>
 
           {/* Content - A4 Landscape Layout */}
-          <div className="p-8 overflow-y-auto max-h-[calc(95vh-100px)]">
+          <div className="p-8 overflow-y-auto max-h-[calc(85vh-120px)]">
             <div className="bg-white min-h-[210mm] w-[297mm] mx-auto border border-gray-300 shadow-lg p-8 print-content">
               {/* Header with Logo */}
               <div className="text-center mb-8">
