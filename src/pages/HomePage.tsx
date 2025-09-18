@@ -2,27 +2,56 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Plus, PrinterIcon, Eye } from 'lucide-react';
 import { OrderModal } from '../components/OrderModal';
+import { supabase } from '../lib/supabase';
 
 export const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
 
-  const generateOrderNumber = () => {
-    const date = new Date();
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    const seconds = String(date.getSeconds()).padStart(2, '0');
-    const milliseconds = String(date.getMilliseconds()).padStart(3, '0');
-    return `ORD${year}${month}${day}${hours}${minutes}${seconds}${milliseconds}`;
+  const generateOrderNumber = async () => {
+    try {
+      // Recupera l'ultimo numero ordine dal database
+      const { data: lastOrder, error } = await supabase
+        .from('orders')
+        .select('order_number')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Errore nel recuperare l\'ultimo ordine:', error);
+        // Se c'è un errore, usa il timestamp come fallback
+        return `ORD${Date.now()}`;
+      }
+
+      // Se non ci sono ordini, inizia da 1
+      if (!lastOrder || lastOrder.length === 0) {
+        return 'ORD1';
+      }
+
+      // Estrai il numero dall'ultimo ordine e incrementa
+      const lastOrderNumber = lastOrder[0].order_number;
+      const lastNumber = parseInt(lastOrderNumber.replace('ORD', ''));
+      const nextNumber = isNaN(lastNumber) ? 1 : lastNumber + 1;
+      
+      return `ORD${nextNumber}`;
+    } catch (error) {
+      console.error('Errore nella generazione del numero ordine:', error);
+      // Fallback in caso di errore
+      return `ORD${Date.now()}`;
+    }
   };
 
-  const handleNewOrder = () => {
-    const newOrderNumber = generateOrderNumber();
-    setOrderNumber(newOrderNumber);
-    setIsModalOpen(true);
+  const handleNewOrder = async () => {
+    try {
+      const newOrderNumber = await generateOrderNumber();
+      setOrderNumber(newOrderNumber);
+      setIsModalOpen(true);
+    } catch (error) {
+      console.error('Errore nella generazione del numero ordine:', error);
+      // Fallback in caso di errore
+      setOrderNumber(`ORD${Date.now()}`);
+      setIsModalOpen(true);
+    }
   };
 
   return (
