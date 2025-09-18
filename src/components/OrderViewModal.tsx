@@ -59,7 +59,11 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
         backgroundColor: '#ffffff',
         logging: false, // Disabilita logging per performance
         width: 1200, // Limita larghezza
-        height: 800  // Limita altezza
+        height: 600, // Riduci altezza per meno spazio vuoto
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: 1200,
+        windowHeight: 600
       });
 
       // Crea PDF in formato A4 landscape
@@ -74,13 +78,15 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
       const pdfHeight = 210;
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
+      
+      // Calcola il rapporto mantenendo le proporzioni
       const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
       const finalWidth = imgWidth * ratio;
       const finalHeight = imgHeight * ratio;
 
-      // Centra l'immagine nel PDF
+      // Centra l'immagine nel PDF con margini ridotti
       const x = (pdfWidth - finalWidth) / 2;
-      const y = (pdfHeight - finalHeight) / 2;
+      const y = 10; // Margine superiore ridotto
 
       // Aggiungi l'immagine al PDF con compressione
       const imageData = canvas.toDataURL('image/jpeg', 0.8); // JPEG con 80% qualità
@@ -139,7 +145,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
           {/* Content - A4 Landscape Layout */}
           <div className="p-8 overflow-y-auto max-h-[calc(85vh-120px)]">
-            <div className="bg-white min-h-[210mm] w-[280mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
+            <div className="bg-white w-[280mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
               {/* Header with Logo */}
               <div className="text-center mb-6">
                 <img
@@ -255,10 +261,10 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content {
             position: absolute;
             left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            top: 20px;
+            transform: translateX(-50%);
             width: 280mm;
-            height: 200mm;
+            height: auto;
             background: white !important;
             color: black !important;
             font-size: 11px;
