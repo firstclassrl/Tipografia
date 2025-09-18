@@ -53,10 +53,13 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
       // Cattura il contenuto come immagine
       const canvas = await html2canvas(element, {
-        scale: 2, // Alta qualità
+        scale: 1, // Qualità ridotta per file più piccolo
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        logging: false, // Disabilita logging per performance
+        width: 1200, // Limita larghezza
+        height: 800  // Limita altezza
       });
 
       // Crea PDF in formato A4 landscape
@@ -79,8 +82,9 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
       const x = (pdfWidth - finalWidth) / 2;
       const y = (pdfHeight - finalHeight) / 2;
 
-      // Aggiungi l'immagine al PDF
-      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', x, y, finalWidth, finalHeight);
+      // Aggiungi l'immagine al PDF con compressione
+      const imageData = canvas.toDataURL('image/jpeg', 0.8); // JPEG con 80% qualità
+      pdf.addImage(imageData, 'JPEG', x, y, finalWidth, finalHeight);
 
       // Scarica il PDF
       pdf.save(`Ordine_${order.order_number}.pdf`);
@@ -287,7 +291,8 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           
           .print-content img {
             max-width: 100%;
-            height: auto;
+            height: 40px !important;
+            width: auto !important;
           }
           
           .print-content table {
