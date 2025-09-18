@@ -231,23 +231,6 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="mt-6 border-t border-gray-300 pt-4">
-                <div className="grid grid-cols-3 gap-6 text-sm">
-                  <div>
-                    <strong>Firma Responsabile:</strong>
-                    <div className="border-b border-gray-300 mt-6 h-6"></div>
-                  </div>
-                  <div>
-                    <strong>Data Consegna:</strong>
-                    <div className="border-b border-gray-300 mt-6 h-6"></div>
-                  </div>
-                  <div>
-                    <strong>Note:</strong>
-                    <div className="border-b border-gray-300 mt-6 h-6"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -329,13 +312,6 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
             grid-template-columns: repeat(4, 1fr);
             gap: 15px;
             margin: 15px 0;
-          }
-          
-          .print-content .footer {
-            margin-top: 20px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
           }
         }
       `}</style>
