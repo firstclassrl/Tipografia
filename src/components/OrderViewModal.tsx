@@ -145,7 +145,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
           {/* Content - A4 Landscape Layout */}
           <div className="p-8 overflow-y-auto max-h-[calc(85vh-120px)]">
-            <div className="bg-white w-[280mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
+            <div className="bg-white w-[270mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
               {/* Header with Logo */}
               <div className="text-center mb-4">
                 <img
@@ -268,19 +268,19 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content {
             position: absolute;
             left: 50%;
-            top: 5px;
-            transform: translateX(-50%);
-            width: 280mm;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 270mm;
             height: auto;
+            max-height: 190mm;
             background: white !important;
             color: black !important;
             font-size: 11px;
             line-height: 1.3;
             box-shadow: none !important;
             border: 1px solid #ccc !important;
-            padding: 10px !important;
+            padding: 15px !important;
             overflow: hidden;
-            margin-bottom: 20px;
           }
           
           .no-print {

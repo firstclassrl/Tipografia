@@ -157,7 +157,7 @@ export const OrdersList: React.FC = () => {
   const sendEmail = async (order: OrderWithDetails) => {
     try {
       // Mostra messaggio di caricamento
-      alert('📧 Preparazione email in corso...\n\nGenerazione PDF allegato...');
+      alert('📧 Generazione PDF allegato in corso...\n\nAttendere prego...');
       
       // Genera il PDF
       const pdfBlob = await generatePDF(order);
@@ -169,6 +169,11 @@ export const OrdersList: React.FC = () => {
       const link = document.createElement('a');
       link.href = pdfUrl;
       link.download = `Ordine_${order.order_number}.pdf`;
+      document.body.appendChild(link);
+      
+      // Scarica automaticamente il PDF
+      link.click();
+      document.body.removeChild(link);
       
       // Prepara il contenuto della mail
       const subject = encodeURIComponent(`Ordine Tipografia ${order.order_number}`);
@@ -182,20 +187,21 @@ Dettagli ordine:
 - Data ordine: ${new Date(order.created_at).toLocaleDateString('it-IT')}
 - Numero prodotti: ${order.order_details.length}
 
+IMPORTANTE: Il PDF "Ordine_${order.order_number}.pdf" è stato scaricato automaticamente nella cartella Download. 
+Allegalo a questa email prima di inviarla.
+
 Il PDF allegato contiene tutti i dettagli completi dell'ordine.
 
 Cordiali saluti
       `.trim());
       
-      // Apri la mail (il PDF dovrà essere allegato manualmente)
-      const mailtoUrl = `mailto:tipografia@example.com?subject=${subject}&body=${body}`;
-      window.open(mailtoUrl);
-      
-      // Scarica automaticamente il PDF per allegarlo
+      // Apri la mail dopo il download
       setTimeout(() => {
-        link.click();
-        alert('✅ PDF generato!\n\nIl PDF è stato scaricato automaticamente.\nAllegalo alla mail che si è aperta.');
-      }, 1000);
+        const mailtoUrl = `mailto:tipografia@example.com?subject=${subject}&body=${body}`;
+        window.open(mailtoUrl);
+        
+        alert('✅ PDF scaricato e email preparata!\n\n📁 Il PDF è stato scaricato nella cartella Download\n📧 Email aperta con contenuto pre-compilato\n\n⬆️ Allega il PDF alla email prima di inviare');
+      }, 500);
       
     } catch (error) {
       console.error('Errore nell\'invio email:', error);
