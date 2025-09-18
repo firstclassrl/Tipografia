@@ -2,11 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { supabase, OrderWithDetails } from '../lib/supabase';
 import { FileText, Mail, Calendar, Package, Eye, Trash2 } from 'lucide-react';
 import { OrderDetailsModal } from './OrderDetailsModal';
+import { OrderViewModal } from './OrderViewModal';
 
 export const OrdersList: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -170,7 +172,10 @@ Cordiali saluti
 
               <div className="flex gap-4">
                 <button
-                  onClick={() => setSelectedOrder(order)}
+                  onClick={() => {
+                    setSelectedOrder(order);
+                    setViewModalOpen(true);
+                  }}
                   className="flex items-center gap-2 px-6 py-3 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-300 border border-white/20 hover:border-white/40 font-medium"
                 >
                   <Eye className="h-4 w-4" />
@@ -201,6 +206,15 @@ Cordiali saluti
           order={selectedOrder}
           isOpen={!!selectedOrder}
           onClose={() => setSelectedOrder(null)}
+        />
+      )}
+
+      {selectedOrder && (
+        <OrderViewModal
+          order={selectedOrder}
+          orderDetails={selectedOrder.order_details}
+          isOpen={viewModalOpen}
+          onClose={() => setViewModalOpen(false)}
         />
       )}
     </div>

@@ -67,7 +67,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
   const saveOrder = async () => {
     if (products.length === 0) {
-      alert('Aggiungi almeno un prodotto prima di salvare l\'ordine.');
+      alert('⚠️ Attenzione\n\nAggiungi almeno un prodotto prima di salvare l\'ordine.');
       return;
     }
 
@@ -111,7 +111,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       
     } catch (error: any) {
       console.error('Errore nel salvare l\'ordine multi-prodotto:', error);
-      alert('Errore nel salvare l\'ordine. Riprova.');
+      alert('❌ Errore\n\nImpossibile salvare l\'ordine. Riprova più tardi.');
     }
   };
 
@@ -142,10 +142,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
             {/* Add Product Button */}
             <div className="mb-6">
               <button
-                onClick={() => {
-                  alert('Test button clicked!');
-                  addNewProduct();
-                }}
+                onClick={addNewProduct}
                 className="flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl hover:from-red-600 hover:to-red-700 transition-all duration-300 font-medium cursor-pointer"
                 style={{ zIndex: 9999, position: 'relative' }}
               >
@@ -220,7 +217,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium"
               >
                 <CheckCircle className="h-5 w-5" />
-                Salva Ordine
+                Aggiungi Prodotto
               </button>
             </div>
           )}
