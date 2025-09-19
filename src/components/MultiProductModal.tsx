@@ -4,6 +4,7 @@ import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
 import { BlisterForm } from './forms/BlisterForm';
 import { supabase } from '../lib/supabase';
+import { Notification } from './Notification';
 
 interface ProductItem {
   id: string;
@@ -34,6 +35,11 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' | 'info'; isVisible: boolean }>({
+    message: '',
+    type: 'success',
+    isVisible: false
+  });
 
   const addNewProduct = () => {
     const newProduct: ProductItem = {
@@ -105,13 +111,25 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       if (detailsError) throw detailsError;
 
-      // Chiudi il modal e reindirizza
-      onClose();
-      // Qui potresti aggiungere un redirect alla pagina ordini
+      // Mostra notifica di successo
+      setNotification({
+        message: `Ordine N. ${orderNumber} salvato`,
+        type: 'success',
+        isVisible: true
+      });
+
+      // Chiudi il modal dopo 3 secondi
+      setTimeout(() => {
+        onClose();
+      }, 3000);
       
     } catch (error: any) {
       console.error('Errore nel salvare l\'ordine multi-prodotto:', error);
-      alert('❌ Errore\n\nImpossibile salvare l\'ordine. Riprova più tardi.');
+      setNotification({
+        message: 'Errore nel salvare l\'ordine',
+        type: 'error',
+        isVisible: true
+      });
     }
   };
 
@@ -217,7 +235,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium"
               >
                 <CheckCircle className="h-5 w-5" />
-                Aggiungi Etichetta
+                Salva Ordine
               </button>
             </div>
           )}
@@ -265,6 +283,15 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           </div>
         </div>
       )}
+
+      {/* Notification */}
+      <Notification
+        message={notification.message}
+        type={notification.type}
+        isVisible={notification.isVisible}
+        onClose={() => setNotification(prev => ({ ...prev, isVisible: false }))}
+        duration={3000}
+      />
     </>
   );
 };
