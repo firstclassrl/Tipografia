@@ -48,22 +48,22 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
         return;
       }
 
-      // Mostra messaggio di caricamento
-      alert('📄 Generazione PDF in corso...\n\nAttendere prego...');
+      // Genera PDF senza messaggio
 
       // Cattura il contenuto come immagine
       const canvas = await html2canvas(element, {
-        scale: 1, // Qualità ridotta per file più piccolo
+        scale: 2, // Migliore qualità
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
-        logging: false, // Disabilita logging per performance
-        width: 1200, // Limita larghezza
-        height: 600, // Riduci altezza per meno spazio vuoto
+        logging: false,
+        width: 1200,
+        height: 800,
         scrollX: 0,
         scrollY: 0,
         windowWidth: 1200,
-        windowHeight: 600
+        windowHeight: 800,
+        removeContainer: true
       });
 
       // Crea PDF in formato A4 landscape
@@ -84,13 +84,13 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
       const finalWidth = imgWidth * ratio;
       const finalHeight = imgHeight * ratio;
 
-      // Centra l'immagine nel PDF con margini ridotti
+      // Centra l'immagine nel PDF senza margini
       const x = (pdfWidth - finalWidth) / 2;
-      const y = 10; // Margine superiore ridotto
+      const y = 0; // Nessun margine superiore
 
-      // Aggiungi l'immagine al PDF con compressione
-      const imageData = canvas.toDataURL('image/jpeg', 0.8); // JPEG con 80% qualità
-      pdf.addImage(imageData, 'JPEG', x, y, finalWidth, finalHeight);
+      // Aggiungi l'immagine al PDF con migliore qualità
+      const imageData = canvas.toDataURL('image/jpeg', 0.9);
+      pdf.addImage(imageData, 'JPEG', x, y, finalWidth, finalHeight, undefined, 'FAST');
 
       // Scarica il PDF
       pdf.save(`Ordine_${order.order_number}.pdf`);
@@ -103,8 +103,8 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 py-12 px-8">
-        <div className="bg-white w-full max-w-7xl max-h-[85vh] overflow-hidden rounded-xl shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+        <div className="bg-white w-full max-w-6xl max-h-[90vh] overflow-hidden rounded-xl shadow-2xl">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gray-50">
             <div className="flex items-center gap-3">
@@ -144,8 +144,8 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           </div>
 
           {/* Content - A4 Landscape Layout */}
-          <div className="p-8 overflow-y-auto max-h-[calc(85vh-120px)]">
-            <div className="bg-white w-[270mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
+          <div className="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
+            <div className="bg-white w-[270mm] mx-auto border border-gray-300 shadow-lg p-4 print-content">
               {/* Header with Logo */}
               <div className="text-center mb-3">
                 <img
@@ -248,7 +248,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
         @media print {
           @page {
             size: A4 landscape;
-            margin: 1cm;
+            margin: 0;
           }
           
           body * {
@@ -262,19 +262,19 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content {
             position: absolute;
             left: 50%;
-            top: 5mm;
+            top: 0;
             transform: translateX(-50%);
-            width: 280mm;
-            height: auto;
-            max-height: 200mm;
+            width: 297mm;
+            height: 210mm;
             background: white !important;
             color: black !important;
-            font-size: 10px;
-            line-height: 1.2;
+            font-size: 8px;
+            line-height: 1.1;
             box-shadow: none !important;
-            border: 1px solid #ccc !important;
-            padding: 10px !important;
+            border: none !important;
+            padding: 5mm !important;
             overflow: hidden;
+            page-break-inside: avoid;
           }
           
           .no-print {
@@ -312,23 +312,41 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           
           .print-content .header {
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+          }
+          
+          .print-content img {
+            height: 20px !important;
+            width: auto !important;
+          }
+          
+          .print-content h1 {
+            font-size: 14px !important;
+            margin-bottom: 5px !important;
           }
           
           .print-content .details {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 10px 0;
+            gap: 5px;
+            margin: 5px 0;
+            font-size: 7px !important;
+          }
+          
+          .print-content h2 {
+            font-size: 10px !important;
+            margin-bottom: 3px !important;
           }
           
           .print-content table {
-            font-size: 9px !important;
+            font-size: 6px !important;
+            margin-top: 3px !important;
           }
           
           .print-content th,
           .print-content td {
-            padding: 2px !important;
+            padding: 1px !important;
+            border: 1px solid #000 !important;
           }
         }
       `}</style>
