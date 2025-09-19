@@ -247,7 +247,7 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
           ) : (
             <>
               <CheckCircle className="h-6 w-6" />
-              Salva Ordine
+              Salva Etichetta
             </>
           )}
         </button>

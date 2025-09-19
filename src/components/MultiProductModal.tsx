@@ -147,7 +147,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 style={{ zIndex: 9999, position: 'relative' }}
               >
                 <Plus className="h-5 w-5" />
-                Aggiungi Prodotto
+                Aggiungi Etichetta
               </button>
             </div>
 
@@ -158,7 +158,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                   Nessun prodotto aggiunto
                 </div>
                 <p className="text-white/30">
-                  Clicca su "Aggiungi Prodotto" per iniziare
+                  Clicca su "Aggiungi Etichetta" per iniziare
                 </p>
               </div>
             ) : (
@@ -217,7 +217,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 className="flex items-center gap-3 px-8 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-300 font-medium"
               >
                 <CheckCircle className="h-5 w-5" />
-                Aggiungi Prodotto
+                Aggiungi Etichetta
               </button>
             </div>
           )}
@@ -230,7 +230,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
-                Aggiungi Prodotto
+                Aggiungi Etichetta
               </h3>
               <button
                 onClick={() => setIsProductModalOpen(false)}
