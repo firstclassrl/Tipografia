@@ -52,17 +52,17 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
       // Cattura il contenuto come immagine
       const canvas = await html2canvas(element, {
-        scale: 2, // Migliore qualità
+        scale: 3, // Qualità molto alta
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
-        width: 1200,
-        height: 800,
+        width: 1400,
+        height: 1000,
         scrollX: 0,
         scrollY: 0,
-        windowWidth: 1200,
-        windowHeight: 800,
+        windowWidth: 1400,
+        windowHeight: 1000,
         removeContainer: true
       });
 
@@ -79,13 +79,12 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
       
-      // Calcola il rapporto mantenendo le proporzioni
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const finalWidth = imgWidth * ratio;
-      const finalHeight = imgHeight * ratio;
+      // Usa tutto lo spazio disponibile del foglio A4
+      const finalWidth = pdfWidth; // Usa tutta la larghezza
+      const finalHeight = pdfHeight; // Usa tutta l'altezza
 
-      // Centra l'immagine nel PDF senza margini
-      const x = (pdfWidth - finalWidth) / 2;
+      // Posiziona l'immagine senza margini
+      const x = 0; // Nessun margine laterale
       const y = 0; // Nessun margine superiore
 
       // Aggiungi l'immagine al PDF con migliore qualità
@@ -145,7 +144,7 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
 
           {/* Content - A4 Landscape Layout */}
           <div className="p-4 overflow-y-auto max-h-[calc(90vh-120px)]">
-            <div className="bg-white w-[270mm] mx-auto border border-gray-300 shadow-lg p-4 print-content">
+            <div className="bg-white w-[290mm] mx-auto border border-gray-300 shadow-lg p-6 print-content">
               {/* Header with Logo */}
               <div className="text-center mb-3">
                 <img
@@ -268,11 +267,11 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
             height: 210mm;
             background: white !important;
             color: black !important;
-            font-size: 8px;
-            line-height: 1.1;
+            font-size: 10px;
+            line-height: 1.2;
             box-shadow: none !important;
             border: none !important;
-            padding: 5mm !important;
+            padding: 8mm !important;
             overflow: hidden;
             page-break-inside: avoid;
           }
@@ -316,36 +315,36 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           }
           
           .print-content img {
-            height: 20px !important;
+            height: 40px !important;
             width: auto !important;
           }
           
           .print-content h1 {
-            font-size: 14px !important;
-            margin-bottom: 5px !important;
+            font-size: 20px !important;
+            margin-bottom: 8px !important;
           }
           
           .print-content .details {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
-            margin: 5px 0;
-            font-size: 7px !important;
+            gap: 8px;
+            margin: 8px 0;
+            font-size: 10px !important;
           }
           
           .print-content h2 {
-            font-size: 10px !important;
-            margin-bottom: 3px !important;
+            font-size: 14px !important;
+            margin-bottom: 5px !important;
           }
           
           .print-content table {
-            font-size: 6px !important;
-            margin-top: 3px !important;
+            font-size: 9px !important;
+            margin-top: 5px !important;
           }
           
           .print-content th,
           .print-content td {
-            padding: 1px !important;
+            padding: 3px !important;
             border: 1px solid #000 !important;
           }
         }
