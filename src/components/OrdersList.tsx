@@ -13,6 +13,7 @@ export const OrdersList: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editingStatus, setEditingStatus] = useState<number | null>(null);
 
   useEffect(() => {
     fetchOrders();
@@ -101,6 +102,27 @@ Cordiali saluti
     }
   };
 
+  const updateOrderStatus = async (orderId: number, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus })
+        .eq('id', orderId);
+
+      if (error) throw error;
+
+      // Aggiorna la lista locale
+      setOrders(prev => prev.map(order => 
+        order.id === orderId ? { ...order, status: newStatus } : order
+      ));
+
+      setEditingStatus(null);
+    } catch (error) {
+      console.error('Errore nell\'aggiornare lo stato:', error);
+      alert('Errore nell\'aggiornare lo stato. Riprova.');
+    }
+  };
+
   const deleteOrder = async (order: OrderWithDetails) => {
     if (!confirm(`Sei sicuro di voler eliminare l'ordine ${order.order_number}?`)) {
       return;
@@ -133,7 +155,6 @@ Cordiali saluti
     switch (status) {
       case 'bozza': return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
       case 'inviato': return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
-      case 'completato': return 'bg-green-500/20 text-green-300 border border-green-500/30';
       case 'annullato': return 'bg-red-500/20 text-red-300 border border-red-500/30';
       default: return 'bg-white/20 text-white border border-white/30';
     }
@@ -188,9 +209,26 @@ Cordiali saluti
                     <p className="text-red-300 capitalize font-medium">{order.print_type}</p>
                   </div>
                 </div>
-                <span className={`px-4 py-2 rounded-xl text-sm font-bold backdrop-blur-sm ${getStatusColor(order.status)}`}>
-                  {order.status}
-                </span>
+                {editingStatus === order.id ? (
+                  <select
+                    value={order.status}
+                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                    onBlur={() => setEditingStatus(null)}
+                    className={`px-4 py-2 rounded-xl text-sm font-bold backdrop-blur-sm ${getStatusColor(order.status)} cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/30`}
+                    autoFocus
+                  >
+                    <option value="bozza">bozza</option>
+                    <option value="inviato">inviato</option>
+                    <option value="annullato">annullato</option>
+                  </select>
+                ) : (
+                  <span 
+                    className={`px-4 py-2 rounded-xl text-sm font-bold backdrop-blur-sm ${getStatusColor(order.status)} cursor-pointer hover:opacity-80 transition-opacity`}
+                    onClick={() => setEditingStatus(order.id)}
+                  >
+                    {order.status}
+                  </span>
+                )}
               </div>
 
               <div className="flex items-center gap-4 text-sm text-white/70 mb-6">
