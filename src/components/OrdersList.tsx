@@ -3,6 +3,7 @@ import { supabase, OrderWithDetails } from '../lib/supabase';
 import { FileText, Mail, Calendar, Package, Eye, Trash2, Edit } from 'lucide-react';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { OrderViewModal } from './OrderViewModal';
+import { MultiProductModal } from './MultiProductModal';
 import { pdf } from '@react-pdf/renderer';
 import { OrderPDF } from './OrderPDF';
 
@@ -11,6 +12,7 @@ export const OrdersList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -216,8 +218,8 @@ Cordiali saluti
                 </button>
                 <button
                   onClick={() => {
-                    // Naviga alla pagina di modifica ordine
-                    window.location.href = '/';
+                    setSelectedOrder(order);
+                    setEditModalOpen(true);
                   }}
                   className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/25 font-medium"
                 >
@@ -258,6 +260,20 @@ Cordiali saluti
           orderDetails={selectedOrder.order_details}
           isOpen={viewModalOpen}
           onClose={() => setViewModalOpen(false)}
+        />
+      )}
+
+      {selectedOrder && (
+        <MultiProductModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedOrder(null);
+            fetchOrders(); // Ricarica gli ordini dopo la modifica
+          }}
+          orderNumber={selectedOrder.order_number}
+          printType={selectedOrder.print_type as 'etichetta' | 'astuccio' | 'blister'}
+          existingOrder={selectedOrder}
         />
       )}
     </div>

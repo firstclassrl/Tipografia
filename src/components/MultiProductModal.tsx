@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, CheckCircle } from 'lucide-react';
 import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
@@ -24,13 +24,15 @@ interface MultiProductModalProps {
   onClose: () => void;
   orderNumber: string;
   printType: 'etichetta' | 'astuccio' | 'blister';
+  existingOrder?: any; // Per modificare ordini esistenti
 }
 
 export const MultiProductModal: React.FC<MultiProductModalProps> = ({ 
   isOpen, 
   onClose, 
   orderNumber, 
-  printType 
+  printType,
+  existingOrder 
 }) => {
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
@@ -40,6 +42,33 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
     type: 'success',
     isVisible: false
   });
+
+  // Carica prodotti esistenti quando si modifica un ordine
+  useEffect(() => {
+    if (existingOrder && existingOrder.order_details) {
+      const existingProducts: ProductItem[] = existingOrder.order_details.map((detail: any) => ({
+        id: detail.id.toString(),
+        eanCode: detail.ean_code || '',
+        clientName: detail.client_name || '',
+        productName: detail.product_name || '',
+        measurements: detail.measurements || '',
+        packageType: detail.package_type || '',
+        lotNumber: detail.lot_number || '',
+        expiryDate: detail.expiry_date ? formatDateForInput(detail.expiry_date) : '',
+        productionDate: detail.production_date ? formatDateForInput(detail.production_date) : '',
+        quantity: detail.quantity ? detail.quantity.toString() : ''
+      }));
+      setProducts(existingProducts);
+    }
+  }, [existingOrder]);
+
+  const formatDateForInput = (dateString: string) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    return `${month}/${year}`;
+  };
 
   const addNewProduct = () => {
     const newProduct: ProductItem = {
@@ -78,18 +107,45 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
     }
 
     try {
-      // Crea l'ordine principale
-      const { data: orderData, error: orderError } = await supabase
-        .from('orders')
-        .insert({
-          order_number: orderNumber,
-          print_type: printType,
-          status: 'bozza'
-        })
-        .select()
-        .single();
+      let orderData;
+      
+      if (existingOrder) {
+        // MODIFICA ORDINE ESISTENTE
+        // Aggiorna l'ordine principale
+        const { data: updatedOrder, error: orderError } = await supabase
+          .from('orders')
+          .update({
+            print_type: printType,
+            status: 'bozza'
+          })
+          .eq('id', existingOrder.id)
+          .select()
+          .single();
 
-      if (orderError) throw orderError;
+        if (orderError) throw orderError;
+        orderData = updatedOrder;
+
+        // Elimina tutti i dettagli esistenti
+        await supabase
+          .from('order_details')
+          .delete()
+          .eq('order_id', existingOrder.id);
+
+      } else {
+        // NUOVO ORDINE
+        const { data: newOrder, error: orderError } = await supabase
+          .from('orders')
+          .insert({
+            order_number: orderNumber,
+            print_type: printType,
+            status: 'bozza'
+          })
+          .select()
+          .single();
+
+        if (orderError) throw orderError;
+        orderData = newOrder;
+      }
 
       // Crea i dettagli per tutti i prodotti
       const orderDetails = products.map(product => ({
@@ -112,8 +168,9 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       if (detailsError) throw detailsError;
 
       // Mostra notifica di successo
+      const action = existingOrder ? 'modificato' : 'salvato';
       setNotification({
-        message: `Ordine N. ${orderNumber} salvato`,
+        message: `Ordine N. ${orderNumber} ${action}`,
         type: 'success',
         isVisible: true
       });
@@ -143,7 +200,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                Nuovo Ordine - {printType.charAt(0).toUpperCase() + printType.slice(1)}
+{existingOrder ? 'Modifica' : 'Nuovo'} Ordine - {printType.charAt(0).toUpperCase() + printType.slice(1)}
               </h2>
               <p className="text-white/70">Ordine N° {orderNumber}</p>
             </div>
