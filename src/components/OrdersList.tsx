@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, OrderWithDetails } from '../lib/supabase';
-import { FileText, Mail, Calendar, Package, Eye, Trash2 } from 'lucide-react';
+import { FileText, Mail, Calendar, Package, Eye, Trash2, Edit } from 'lucide-react';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { OrderViewModal } from './OrderViewModal';
 import { pdf } from '@react-pdf/renderer';
@@ -213,6 +213,16 @@ Cordiali saluti
                 >
                   <Eye className="h-4 w-4" />
                   Visualizza
+                </button>
+                <button
+                  onClick={() => {
+                    // Naviga alla pagina di modifica ordine
+                    window.location.href = '/';
+                  }}
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/25 font-medium"
+                >
+                  <Edit className="h-4 w-4" />
+                  Modifica
                 </button>
                 <button
                   onClick={() => sendEmail(order)}
