@@ -3,9 +3,8 @@ import { supabase, OrderWithDetails } from '../lib/supabase';
 import { FileText, Mail, Calendar, Package, Eye, Trash2 } from 'lucide-react';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { OrderViewModal } from './OrderViewModal';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import logoFarmap from '../assets/logo farmap industry.png';
+import { pdf } from '@react-pdf/renderer';
+import { OrderPDF } from './OrderPDF';
 
 export const OrdersList: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
@@ -38,110 +37,8 @@ export const OrdersList: React.FC = () => {
 
   const generatePDF = async (order: OrderWithDetails): Promise<Blob> => {
     try {
-      // Crea un elemento temporaneo per il contenuto PDF
-      const tempDiv = document.createElement('div');
-      tempDiv.className = 'print-content';
-      tempDiv.style.position = 'absolute';
-      tempDiv.style.left = '-9999px';
-      tempDiv.style.top = '-9999px';
-      tempDiv.style.width = '280mm';
-      tempDiv.style.backgroundColor = 'white';
-      tempDiv.style.padding = '15px';
-      tempDiv.style.fontSize = '11px';
-      tempDiv.style.lineHeight = '1.3';
-      
-      // Popola il contenuto
-      tempDiv.innerHTML = `
-        <div class="text-center mb-4">
-          <img src="${logoFarmap}" alt="Farmap Industry" style="height: 40px; width: auto; margin: 0 auto 15px;">
-          <h1 style="font-size: 24px; font-weight: bold; color: black; margin-bottom: 10px;">ORDINE DI STAMPA</h1>
-          <div style="display: flex; justify-content: center; gap: 30px; font-size: 12px; color: #666;">
-            <span><strong>Ordine:</strong> ${order.order_number}</span>
-            <span><strong>Data:</strong> ${new Date(order.created_at).toLocaleDateString('it-IT')}</span>
-            <span><strong>Stato:</strong> ${order.status}</span>
-          </div>
-        </div>
-        
-        <div class="mb-4">
-          <h2 style="font-size: 18px; font-weight: bold; color: black; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Dettagli Ordine</h2>
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; font-size: 11px;">
-            <div><strong>Tipo di Stampa:</strong><br/>${order.print_type?.toUpperCase()}</div>
-            <div><strong>Numero Prodotti:</strong><br/>${order.order_details.length}</div>
-            <div><strong>Data Creazione:</strong><br/>${new Date(order.created_at).toLocaleDateString('it-IT')}</div>
-            <div><strong>Ultimo Aggiornamento:</strong><br/>${new Date(order.updated_at).toLocaleDateString('it-IT')}</div>
-          </div>
-        </div>
-        
-        <div class="mb-4">
-          <h2 style="font-size: 18px; font-weight: bold; color: black; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 5px;">Prodotti</h2>
-          <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
-            <thead>
-              <tr style="background-color: #f5f5f5;">
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Prodotto</th>
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Cliente</th>
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">EAN</th>
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Lotto</th>
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Scadenza</th>
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Produzione</th>
-                <th style="border: 1px solid #333; padding: 4px; text-align: left;">Qtà</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${order.order_details.map(detail => `
-                <tr>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.product_name || 'N/A'}</td>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.client_name || 'N/A'}</td>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.ean_code || 'N/A'}</td>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.lot_number || 'N/A'}</td>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.expiry_date ? new Date(detail.expiry_date).toLocaleDateString('it-IT') : 'N/A'}</td>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.production_date ? new Date(detail.production_date).toLocaleDateString('it-IT') : 'N/A'}</td>
-                  <td style="border: 1px solid #333; padding: 4px;">${detail.quantity || 'N/A'}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-      
-      document.body.appendChild(tempDiv);
-      
-      // Cattura il contenuto come immagine
-      const canvas = await html2canvas(tempDiv, {
-        scale: 1,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff',
-        logging: false,
-        width: 1200,
-        height: 600
-      });
-      
-      // Rimuovi l'elemento temporaneo
-      document.body.removeChild(tempDiv);
-      
-      // Crea PDF
-      const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      const pdfWidth = 297;
-      const pdfHeight = 210;
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      const finalWidth = imgWidth * ratio;
-      const finalHeight = imgHeight * ratio;
-      
-      const x = (pdfWidth - finalWidth) / 2;
-      const y = 10;
-      
-      const imageData = canvas.toDataURL('image/jpeg', 0.8);
-      pdf.addImage(imageData, 'JPEG', x, y, finalWidth, finalHeight);
-      
-      // Converte in Blob
-      const pdfBlob = pdf.output('blob');
+      // Genera PDF usando @react-pdf/renderer
+      const pdfBlob = await pdf(<OrderPDF order={order} />).toBlob();
       return pdfBlob;
       
     } catch (error) {
