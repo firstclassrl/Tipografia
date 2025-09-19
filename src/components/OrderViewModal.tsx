@@ -262,11 +262,10 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
           .print-content {
             position: absolute;
             left: 50%;
-            top: 50%;
-            transform: translate(-50%, -50%);
+            top: 10mm;
+            transform: translateX(-50%);
             width: 270mm;
             height: auto;
-            max-height: 190mm;
             background: white !important;
             color: black !important;
             font-size: 11px;
