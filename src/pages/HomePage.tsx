@@ -94,7 +94,7 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* Main Action Buttons */}
-        <div className="text-center mb-16 relative z-10 space-y-16">
+        <div className="text-center mb-16 relative z-10 space-y-24">
           <button
             onClick={handleNewOrder}
             className="group relative inline-flex items-center gap-4 px-12 py-6 bg-gradient-to-r from-red-600 via-red-500 to-red-700 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-red-500/25 transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 border border-red-400/30"
