@@ -4,7 +4,7 @@ import { Plus, Eye } from 'lucide-react';
 import { OrderModal } from '../components/OrderModal';
 import { supabase } from '../lib/supabase';
 import logoFarmap from '../assets/logo farmap industry.png';
-import iconaTipografia from '../assets/icona-tipografia.png';
+import iconaTipografia from '../assets/icona-tipografia.svg';
 
 export const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
