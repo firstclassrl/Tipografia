@@ -78,26 +78,26 @@ const styles = StyleSheet.create({
   tableCell: {
     margin: 'auto',
     marginVertical: 5,
-    marginHorizontal: 2,
-    fontSize: 8,
+    marginHorizontal: 1,
+    fontSize: 7,
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#000',
-    padding: 4,
-    width: '14.28%',
+    padding: 3,
+    width: '14%',
     textAlign: 'left',
   },
   tableHeaderCell: {
     margin: 'auto',
     marginVertical: 5,
-    marginHorizontal: 2,
-    fontSize: 8,
+    marginHorizontal: 1,
+    fontSize: 7,
     fontWeight: 'bold',
     borderStyle: 'solid',
     borderWidth: 1,
     borderColor: '#000',
-    padding: 4,
-    width: '14.28%',
+    padding: 3,
+    width: '14%',
     textAlign: 'left',
     backgroundColor: '#f0f0f0',
   },
@@ -108,11 +108,10 @@ export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => (
     <Page size="A4" orientation="landscape" style={styles.page}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.title}>ORDINE DI STAMPA</Text>
+        <Text style={styles.title}>ORDINE DI STAMPA - FARMAP INDUSTRY</Text>
         <View style={styles.orderInfo}>
           <Text>Ordine: {order.order_number}</Text>
           <Text>Data: {new Date(order.created_at).toLocaleDateString('it-IT')}</Text>
-          <Text>Stato: {order.status}</Text>
         </View>
       </View>
 
@@ -121,31 +120,19 @@ export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => (
         <Text style={styles.sectionTitle}>Dettagli Ordine</Text>
         <View style={styles.detailsGrid}>
           <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Tipo di Stampa:</Text>
-            <Text>{order.print_type?.toUpperCase()}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Numero Prodotti:</Text>
-            <Text>{order.order_details.length}</Text>
-          </View>
-          <View style={styles.detailItem}>
             <Text style={styles.detailLabel}>Data Creazione:</Text>
             <Text>{new Date(order.created_at).toLocaleDateString('it-IT')}</Text>
-          </View>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Ultimo Aggiornamento:</Text>
-            <Text>{new Date(order.updated_at).toLocaleDateString('it-IT')}</Text>
           </View>
         </View>
       </View>
 
       {/* Products Table */}
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Prodotti</Text>
+        <Text style={styles.sectionTitle}>Etichette</Text>
         <View style={styles.table}>
           {/* Table Header */}
           <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.tableHeaderCell}>Prodotto</Text>
+            <Text style={styles.tableHeaderCell}>Etichetta</Text>
             <Text style={styles.tableHeaderCell}>Cliente</Text>
             <Text style={styles.tableHeaderCell}>EAN</Text>
             <Text style={styles.tableHeaderCell}>Lotto</Text>

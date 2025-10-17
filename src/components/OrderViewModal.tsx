@@ -74,12 +74,11 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                   className="h-16 w-auto mx-auto mb-4"
                 />
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  ORDINE DI STAMPA
+                  ORDINE DI STAMPA - FARMAP INDUSTRY
                 </h1>
                 <div className="flex justify-center gap-8 text-sm text-gray-600">
                   <span><strong>Ordine:</strong> {order.order_number}</span>
                   <span><strong>Data:</strong> {formatDate(order.created_at)}</span>
-                  <span><strong>Stato:</strong> {order.status}</span>
                 </div>
               </div>
 
@@ -88,22 +87,10 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
                   Dettagli Ordine
                 </h2>
-                <div className="grid grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <strong>Tipo di Stampa:</strong><br/>
-                    {order.print_type?.toUpperCase()}
-                  </div>
-                  <div>
-                    <strong>Numero Prodotti:</strong><br/>
-                    {orderDetails.length}
-                  </div>
+                <div className="grid grid-cols-1 gap-4 text-sm">
                   <div>
                     <strong>Data Creazione:</strong><br/>
                     {formatDate(order.created_at)}
-                  </div>
-                  <div>
-                    <strong>Ultimo Aggiornamento:</strong><br/>
-                    {formatDate(order.updated_at)}
                   </div>
                 </div>
               </div>
@@ -111,13 +98,13 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               {/* Products Table */}
               <div className="mb-3">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
-                  Prodotti
+                  Etichette
                 </h2>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Prodotto</th>
+                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Etichetta</th>
                         <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Cliente</th>
                         <th className="border border-gray-300 px-3 py-2 text-left font-semibold">EAN</th>
                         <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Lotto</th>
