@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Plus, Trash2, CheckCircle } from 'lucide-react';
+import { X, Plus, Trash2, CheckCircle, Edit } from 'lucide-react';
 import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
 import { BlisterForm } from './forms/BlisterForm';
@@ -37,6 +37,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [isEditingExisting, setIsEditingExisting] = useState(false);
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' | 'info'; isVisible: boolean }>({
     message: '',
     type: 'success',
@@ -84,14 +85,32 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       quantity: ''
     };
     setCurrentProduct(newProduct);
+    setIsEditingExisting(false);
+    setIsProductModalOpen(true);
+  };
+
+  const editProduct = (product: ProductItem) => {
+    setCurrentProduct(product);
+    setIsEditingExisting(true);
     setIsProductModalOpen(true);
   };
 
   const saveProduct = (productData: any) => {
     if (currentProduct) {
       const updatedProduct = { ...currentProduct, ...productData };
-      setProducts(prev => [...prev, updatedProduct]);
+      
+      if (isEditingExisting) {
+        // Update existing product
+        setProducts(prev => prev.map(p => 
+          p.id === currentProduct.id ? updatedProduct : p
+        ));
+      } else {
+        // Add new product
+        setProducts(prev => [...prev, updatedProduct]);
+      }
+      
       setCurrentProduct(null);
+      setIsEditingExisting(false);
       setIsProductModalOpen(false);
     }
   };
@@ -230,7 +249,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
             {products.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-white/50 text-lg mb-4">
-                  Nessun prodotto aggiunto
+                  Nessuna etichetta aggiunta
                 </div>
                 <p className="text-white/30">
                   Clicca su "Aggiungi Etichetta" per iniziare
@@ -239,7 +258,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
             ) : (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white mb-4">
-                  Prodotti ({products.length})
+                  Etichette ({products.length})
                 </h3>
                 {products.map((product, index) => (
                   <div
@@ -248,14 +267,22 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                   >
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium text-white">
-                        Prodotto #{index + 1}
+                        Etichetta #{index + 1}
                       </h4>
-                      <button
-                        onClick={() => removeProduct(product.id)}
-                        className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-400" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => editProduct(product)}
+                          className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
+                        >
+                          <Edit className="h-4 w-4 text-blue-400" />
+                        </button>
+                        <button
+                          onClick={() => removeProduct(product.id)}
+                          className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-400" />
+                        </button>
+                      </div>
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                       <div>
@@ -285,7 +312,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           {products.length > 0 && (
             <div className="flex items-center justify-between p-6 border-t border-white/10">
               <p className="text-white/70">
-                {products.length} prodotto{products.length !== 1 ? 'i' : ''} aggiunto{products.length !== 1 ? 'i' : ''}
+                {products.length} etichetta{products.length !== 1 ? 'e' : ''} aggiunta{products.length !== 1 ? 'e' : ''}
               </p>
               <button
                 onClick={saveOrder}
@@ -305,10 +332,14 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
-                Aggiungi Etichetta
+                {isEditingExisting ? 'Modifica Etichetta' : 'Aggiungi Etichetta'}
               </h3>
               <button
-                onClick={() => setIsProductModalOpen(false)}
+                onClick={() => {
+                  setIsProductModalOpen(false);
+                  setCurrentProduct(null);
+                  setIsEditingExisting(false);
+                }}
                 className="p-2 hover:bg-white/10 rounded-xl transition-colors"
               >
                 <X className="h-6 w-6 text-white" />
@@ -320,6 +351,16 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                   orderNumber={orderNumber}
                   onSave={saveProduct}
                   isMultiProduct={true}
+                  initialData={currentProduct ? {
+                    eanCode: currentProduct.eanCode,
+                    clientName: currentProduct.clientName,
+                    productName: currentProduct.productName,
+                    measurements: currentProduct.measurements || '',
+                    lotNumber: currentProduct.lotNumber,
+                    expiryDate: currentProduct.expiryDate,
+                    productionDate: currentProduct.productionDate,
+                    quantity: currentProduct.quantity
+                  } : undefined}
                 />
               )}
               {printType === 'astuccio' && (
@@ -327,6 +368,16 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                   orderNumber={orderNumber}
                   onSave={saveProduct}
                   isMultiProduct={true}
+                  initialData={currentProduct ? {
+                    eanCode: currentProduct.eanCode,
+                    clientName: currentProduct.clientName,
+                    productName: currentProduct.productName,
+                    packageType: currentProduct.packageType || '',
+                    lotNumber: currentProduct.lotNumber,
+                    expiryDate: currentProduct.expiryDate,
+                    productionDate: currentProduct.productionDate,
+                    quantity: currentProduct.quantity
+                  } : undefined}
                 />
               )}
               {printType === 'blister' && (
@@ -334,6 +385,16 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                   orderNumber={orderNumber}
                   onSave={saveProduct}
                   isMultiProduct={true}
+                  initialData={currentProduct ? {
+                    eanCode: currentProduct.eanCode,
+                    clientName: currentProduct.clientName,
+                    productName: currentProduct.productName,
+                    measurements: currentProduct.measurements || '',
+                    lotNumber: currentProduct.lotNumber,
+                    expiryDate: currentProduct.expiryDate,
+                    productionDate: currentProduct.productionDate,
+                    quantity: currentProduct.quantity
+                  } : undefined}
                 />
               )}
             </div>

@@ -1,9 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowLeft, PrinterIcon } from 'lucide-react';
 import { OrdersList } from '../components/OrdersList';
 
 export const OrdersPage: React.FC = () => {
+  const [grouping, setGrouping] = useState<'monthly' | 'yearly'>('monthly');
+  const [clientFilter, setClientFilter] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -39,9 +43,77 @@ export const OrdersPage: React.FC = () => {
 
       {/* Orders List */}
       <div className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl shadow-2xl p-8 relative z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl"></div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-white/80 font-medium">Filtra:</span>
+            <input
+              type="text"
+              value={clientFilter}
+              onChange={(e) => setClientFilter(e.target.value)}
+              placeholder="Cliente"
+              className="px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/30"
+            />
+            <span className="text-white/80 font-medium">Data da:</span>
+            <input
+              type="text"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              placeholder="gg/mm/yyyy"
+              pattern="\d{2}/\d{2}/\d{4}"
+              className={`px-3 py-2 rounded-xl bg-white/10 border text-white placeholder-white/60 focus:outline-none focus:ring-2 ${
+                dateFrom && !dateFrom.match(/^\d{2}\/\d{2}\/\d{4}$/) 
+                  ? 'border-red-500 focus:ring-red-500/30' 
+                  : 'border-white/20 focus:ring-white/30'
+              }`}
+            />
+            <span className="text-white/80 font-medium">a:</span>
+            <input
+              type="text"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              placeholder="gg/mm/yyyy"
+              pattern="\d{2}/\d{2}/\d{4}"
+              className={`px-3 py-2 rounded-xl bg-white/10 border text-white placeholder-white/60 focus:outline-none focus:ring-2 ${
+                dateTo && !dateTo.match(/^\d{2}\/\d{2}\/\d{4}$/) 
+                  ? 'border-red-500 focus:ring-red-500/30' 
+                  : 'border-white/20 focus:ring-white/30'
+              }`}
+            />
+            <button
+              onClick={() => {
+                setClientFilter('');
+                setDateFrom('');
+                setDateTo('');
+              }}
+              className="px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl font-medium hover:from-gray-600 hover:to-gray-700 transition-all duration-300 shadow-lg hover:shadow-gray-500/25"
+            >
+              Pulisci filtri
+            </button>
+          </div>
+          <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              console.log('Setting grouping to monthly');
+              setGrouping('monthly');
+            }}
+            className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-300 ${grouping === 'monthly' ? 'bg-red-600 text-white border-red-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
+          >
+            Mensile
+          </button>
+          <button
+            onClick={() => {
+              console.log('Setting grouping to yearly');
+              setGrouping('yearly');
+            }}
+            className={`px-4 py-2 rounded-xl text-sm font-medium border transition-all duration-300 ${grouping === 'yearly' ? 'bg-red-600 text-white border-red-500' : 'bg-white/10 text-white border-white/20 hover:bg-white/20'}`}
+          >
+            Annuale
+          </button>
+          </div>
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent rounded-3xl pointer-events-none"></div>
         <div className="relative">
-          <OrdersList />
+          <OrdersList grouping={grouping} clientFilter={clientFilter} dateFrom={dateFrom} dateTo={dateTo} />
         </div>
       </div>
     </div>

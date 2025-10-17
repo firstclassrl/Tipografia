@@ -1,19 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import { supabase, OrderWithDetails } from '../lib/supabase';
-import { FileText, Mail, Calendar, Package, Eye, Trash2, Edit } from 'lucide-react';
+import { FileText, Mail, Calendar, Package, Eye, Trash2, Edit, ChevronDown } from 'lucide-react';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { OrderViewModal } from './OrderViewModal';
 import { MultiProductModal } from './MultiProductModal';
 import { pdf } from '@react-pdf/renderer';
 import { OrderPDF } from './OrderPDF';
 
-export const OrdersList: React.FC = () => {
+type OrdersListProps = {
+  grouping?: 'monthly' | 'yearly';
+  clientFilter?: string;
+  dateFrom?: string; // yyyy-mm-dd
+  dateTo?: string;   // yyyy-mm-dd
+};
+
+export const OrdersList: React.FC<OrdersListProps> = ({ grouping = 'monthly', clientFilter = '', dateFrom = '', dateTo = '' }) => {
   const [orders, setOrders] = useState<OrderWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingStatus, setEditingStatus] = useState<number | null>(null);
+  const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchOrders();
@@ -36,6 +44,68 @@ export const OrdersList: React.FC = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const formatMonthKey = (dateStr: string) => {
+    const date = new Date(dateStr);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    return `${year}-${month}`; // e.g., 2025-10
+  };
+
+  const formatYearKey = (dateStr: string) => {
+    const date = new Date(dateStr);
+    return `${date.getFullYear()}`;
+  };
+
+  const normalizedClient = clientFilter.trim().toLowerCase();
+
+  // Converte formato italiano (gg/mm/yyyy) in formato ISO (yyyy-mm-dd)
+  const convertItalianDateToISO = (italianDate: string): string | null => {
+    if (!italianDate || !italianDate.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+      return null;
+    }
+    const [day, month, year] = italianDate.split('/');
+    return `${year}-${month}-${day}`;
+  };
+
+  const passesFilters = (order: OrderWithDetails) => {
+    let ok = true;
+    if (normalizedClient) {
+      const clientName = order.order_details[0]?.client_name?.toLowerCase?.() || '';
+      ok = ok && clientName.includes(normalizedClient);
+    }
+    if (dateFrom) {
+      const isoFrom = convertItalianDateToISO(dateFrom);
+      if (isoFrom) {
+        ok = ok && new Date(order.created_at) >= new Date(isoFrom);
+      }
+    }
+    if (dateTo) {
+      const isoTo = convertItalianDateToISO(dateTo);
+      if (isoTo) {
+        const to = new Date(isoTo);
+        to.setHours(23,59,59,999);
+        ok = ok && new Date(order.created_at) <= to;
+      }
+    }
+    return ok;
+  };
+
+  const groupOrders = () => {
+    const map: Record<string, OrderWithDetails[]> = {};
+    for (const order of orders.filter(passesFilters)) {
+      const key = grouping === 'yearly' ? formatYearKey(order.created_at) : formatMonthKey(order.created_at);
+      if (!map[key]) map[key] = [];
+      map[key].push(order);
+    }
+    // sort groups descending by key
+    const sortedKeys = Object.keys(map).sort((a, b) => b.localeCompare(a));
+    return { keys: sortedKeys, map };
+  };
+
+  const toggleFolder = (key: string) => {
+    setOpenFolders(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const generatePDF = async (order: OrderWithDetails): Promise<Blob> => {
@@ -70,32 +140,22 @@ Dettagli ordine:
 Cordiali saluti
       `.trim();
       
-      // Crea il file PDF
+      // Crea il file PDF e fornisci subito il download
       const pdfFile = new File([pdfBlob], `Ordine_${order.order_number}.pdf`, {
         type: 'application/pdf'
       });
       
-      // Prova con Web Share API se disponibile
-      if (navigator.share && navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-        await navigator.share({
-          title: subject,
-          text: body,
-          files: [pdfFile]
-        });
-      } else {
-        // Fallback: apre mailto con istruzioni per allegare il PDF scaricato
-        const pdfUrl = URL.createObjectURL(pdfBlob);
-        const link = document.createElement('a');
-        link.href = pdfUrl;
-        link.download = `Ordine_${order.order_number}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        // Apri mailto
-        const mailtoUrl = `mailto:tipografia@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\nNOTA: Il PDF è stato scaricato automaticamente. Allegalo prima di inviare.')}`;
-        window.open(mailtoUrl);
-      }
+      const pdfUrl = URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = pdfUrl;
+      link.download = `Ordine_${order.order_number}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Apri mailto direttamente (l'utente allegherà il PDF scaricato)
+      const mailtoUrl = `mailto:tipografia@example.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body + '\n\nNOTA: Il PDF è stato scaricato automaticamente. Allegalo prima di inviare.')}`;
+      window.open(mailtoUrl);
       
     } catch (error) {
       console.error('Errore nell\'invio email:', error);
@@ -151,14 +211,8 @@ Cordiali saluti
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'bozza': return 'bg-yellow-500/20 text-yellow-300 border border-yellow-500/30';
-      case 'inviato': return 'bg-blue-500/20 text-blue-300 border border-blue-500/30';
-      case 'annullato': return 'bg-red-500/20 text-red-300 border border-red-500/30';
-      default: return 'bg-white/20 text-white border border-white/30';
-    }
-  };
+  // Manteniamo la funzione per eventuali usi futuri, ma non mostriamo più il badge di stato nella card
+  const getStatusColor = (_status: string) => 'bg-white/20 text-white border border-white/30';
 
   const getPrintTypeIcon = (type: string) => {
     switch (type) {
@@ -177,16 +231,12 @@ Cordiali saluti
     );
   }
 
+  const grouped = groupOrders();
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-center">
         <h2 className="text-3xl font-bold bg-gradient-to-r from-white to-red-200 bg-clip-text text-transparent">I Tuoi Ordini</h2>
-        <button
-          onClick={fetchOrders}
-          className="px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-medium hover:from-red-600 hover:to-red-700 transition-all duration-300 shadow-lg hover:shadow-red-500/25"
-        >
-          Aggiorna
-        </button>
       </div>
 
       {orders.length === 0 ? (
@@ -197,9 +247,26 @@ Cordiali saluti
         </div>
       ) : (
         <div className="grid gap-4">
-          {orders.map(order => (
-            <div key={order.id} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-6 hover:bg-white/15 hover:border-white/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
-              <div className="flex items-center justify-between mb-4">
+          {grouped.keys.map(key => (
+            <div key={key} className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-2xl p-4">
+              <button
+                onClick={() => toggleFolder(key)}
+                className="w-full flex items-center justify-between px-4 py-3 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 text-white transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <ChevronDown className={`h-5 w-5 transition-transform duration-300 ${openFolders[key] ? 'rotate-180' : ''}`} />
+                  <span className="font-semibold tracking-wide">
+                    {grouping === 'yearly' ? `Anno ${key}` : new Date(key + '-01').toLocaleDateString('it-IT', { year: 'numeric', month: 'long' })}
+                  </span>
+                </div>
+                <span className="text-sm opacity-80">{(grouped.map[key] || []).length} ordini</span>
+              </button>
+
+              {openFolders[key] && (
+                <div className="mt-4 grid gap-4">
+                  {(grouped.map[key] || []).map(order => (
+                    <div key={order.id} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-4 hover:bg-white/15 hover:border-white/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
+                      <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
                   <div className="p-3 bg-gradient-to-br from-red-500/20 to-red-700/20 rounded-xl border border-red-500/30">
                     {getPrintTypeIcon(order.print_type)}
@@ -209,29 +276,45 @@ Cordiali saluti
                     <p className="text-red-300 capitalize font-medium">{order.print_type}</p>
                   </div>
                 </div>
-                {editingStatus === order.id ? (
-                  <select
-                    value={order.status}
-                    onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                    onBlur={() => setEditingStatus(null)}
-                    className={`px-4 py-2 rounded-xl text-sm font-bold backdrop-blur-sm ${getStatusColor(order.status)} cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/30`}
-                    autoFocus
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setViewModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-300 border border-white/20 hover:border-white/40 font-medium"
                   >
-                    <option value="bozza">bozza</option>
-                    <option value="inviato">inviato</option>
-                    <option value="annullato">annullato</option>
-                  </select>
-                ) : (
-                  <span 
-                    className={`px-4 py-2 rounded-xl text-sm font-bold backdrop-blur-sm ${getStatusColor(order.status)} cursor-pointer hover:opacity-80 transition-opacity`}
-                    onClick={() => setEditingStatus(order.id)}
+                    <Eye className="h-4 w-4" />
+                    Visualizza
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setEditModalOpen(true);
+                    }}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/25 font-medium"
                   >
-                    {order.status}
-                  </span>
-                )}
+                    <Edit className="h-4 w-4" />
+                    Modifica
+                  </button>
+                  <button
+                    onClick={() => sendEmail(order)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 font-medium"
+                  >
+                    <Mail className="h-4 w-4" />
+                    Invia Ordine
+                  </button>
+                  <button
+                    onClick={() => deleteOrder(order)}
+                    className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-700/25 font-medium"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Elimina
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-4 text-sm text-white/70 mb-6">
+              <div className="flex items-center gap-4 text-sm text-white/70 mb-2">
                 <div className="flex items-center gap-1">
                   <Calendar className="h-4 w-4 text-red-400" />
                   {new Date(order.created_at).toLocaleDateString('it-IT')}
@@ -243,42 +326,11 @@ Cordiali saluti
                 )}
               </div>
 
-              <div className="flex gap-4">
-                <button
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setViewModalOpen(true);
-                  }}
-                  className="flex items-center gap-2 px-6 py-3 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-xl transition-all duration-300 border border-white/20 hover:border-white/40 font-medium"
-                >
-                  <Eye className="h-4 w-4" />
-                  Visualizza
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedOrder(order);
-                    setEditModalOpen(true);
-                  }}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-green-500/25 font-medium"
-                >
-                  <Edit className="h-4 w-4" />
-                  Modifica
-                </button>
-                <button
-                  onClick={() => sendEmail(order)}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 font-medium"
-                >
-                  <Mail className="h-4 w-4" />
-                  Invia Ordine
-                </button>
-                <button
-                  onClick={() => deleteOrder(order)}
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-red-700 to-red-800 hover:from-red-800 hover:to-red-900 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-700/25 font-medium"
-                >
-                  <Trash2 className="h-4 w-4" />
-                  Elimina
-                </button>
-              </div>
+              
+            </div>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
         </div>

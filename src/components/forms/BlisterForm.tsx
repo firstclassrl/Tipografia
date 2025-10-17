@@ -6,6 +6,7 @@ interface BlisterFormProps {
   orderNumber: string;
   onSave: (data?: any) => void;
   isMultiProduct?: boolean;
+  initialData?: FormData;
 }
 
 interface FormData {
@@ -19,8 +20,8 @@ interface FormData {
   quantity: string;
 }
 
-export const BlisterForm: React.FC<BlisterFormProps> = ({ orderNumber, onSave, isMultiProduct = false }) => {
-  const [formData, setFormData] = useState<FormData>({
+export const BlisterForm: React.FC<BlisterFormProps> = ({ orderNumber, onSave, isMultiProduct = false, initialData }) => {
+  const [formData, setFormData] = useState<FormData>(initialData || {
     eanCode: '',
     clientName: '',
     productName: '',
