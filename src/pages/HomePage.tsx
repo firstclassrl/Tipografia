@@ -4,7 +4,8 @@ import { Plus, Eye } from 'lucide-react';
 import { OrderModal } from '../components/OrderModal';
 import { supabase } from '../lib/supabase';
 import logoFarmap from '../assets/logo farmap industry.png';
-import iconaTipografia from '../assets/icona-tipografia.svg';
+import iconaTipografia from '../assets/icona-tipografia.png';
+import { APP_VERSION } from '../config/version';
 
 export const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -76,14 +77,12 @@ export const HomePage: React.FC = () => {
           <div className="backdrop-blur-xl bg-white/5 border border-white/10 rounded-3xl p-6 shadow-2xl">
             <div className="flex items-center justify-center gap-6 mb-6">
               <div className="relative">
-                <div className="p-4 bg-gradient-to-br from-red-500 to-red-700 rounded-2xl shadow-2xl">
-                  <img 
-                    src={iconaTipografia} 
-                    alt="Tipografia" 
-                    className="h-10 w-10 object-contain"
-                  />
-                </div>
-                <div className="absolute inset-0 bg-red-500 rounded-2xl blur-lg opacity-50 animate-pulse"></div>
+                <img 
+                  src={iconaTipografia} 
+                  alt="Tipografia" 
+                  className="h-16 w-16 object-contain filter drop-shadow-2xl"
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500/20 to-transparent rounded-lg blur-xl"></div>
               </div>
               <h1 className="text-5xl font-bold bg-gradient-to-r from-white via-red-100 to-red-200 bg-clip-text text-transparent tracking-tight">
                 Sistema Ordini Tipografia
@@ -137,6 +136,14 @@ export const HomePage: React.FC = () => {
             {/* Glow effect */}
             <div className="absolute inset-0 rounded-2xl bg-white/20 blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10"></div>
           </Link>
+          </div>
+        </div>
+
+        {/* Version Display */}
+        <div className="text-center mt-16 relative z-10">
+          <div className="inline-flex items-center gap-2 px-4 py-2 backdrop-blur-xl bg-white/5 border border-white/10 rounded-full text-white/60 text-sm font-medium">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <span>Versione {APP_VERSION}</span>
           </div>
         </div>
       </div>

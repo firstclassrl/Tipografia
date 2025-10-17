@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "version:increment": "node scripts/increment-version.js",
+    "commit": "npm run version:increment && git add . && git commit"
   },
   "dependencies": {
     "@react-pdf/renderer": "^4.3.0",
