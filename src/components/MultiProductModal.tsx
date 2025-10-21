@@ -323,7 +323,16 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed top-0 left-0 w-screen h-screen bg-black/50 backdrop-blur-sm z-[9999] overflow-hidden">
+      <div 
+        className="fixed bg-black/50 backdrop-blur-sm z-[9999] overflow-hidden"
+        style={{
+          top: 0,
+          left: 0,
+          width: '100vw',
+          height: '100vh',
+          position: 'fixed'
+        }}
+      >
         <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -438,7 +447,16 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       {/* Product Form Modal */}
       {isProductModalOpen && currentProduct && (
-        <div className="fixed top-0 left-0 w-screen h-screen bg-black/70 backdrop-blur-sm z-[99999] overflow-hidden">
+        <div 
+          className="fixed bg-black/70 backdrop-blur-sm z-[99999] overflow-hidden"
+          style={{
+            top: 0,
+            left: 0,
+            width: '100vw',
+            height: '100vh',
+            position: 'fixed'
+          }}
+        >
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
