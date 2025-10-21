@@ -1,5 +1,5 @@
 // Versione dell'applicazione
-export const APP_VERSION = '1.1.6';
+export const APP_VERSION = '1.1.7';
 
 // Funzione per incrementare la versione (patch)
 export const incrementVersion = (currentVersion: string): string => {

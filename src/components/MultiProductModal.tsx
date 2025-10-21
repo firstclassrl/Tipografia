@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Plus, Trash2, CheckCircle, Edit } from 'lucide-react';
 import { EtichettaForm } from './forms/EtichettaForm';
 import { AstuccioForm } from './forms/AstuccioForm';
@@ -337,7 +338,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <>
       <div 
         className="fixed bg-black/50 backdrop-blur-sm z-[9999] overflow-hidden"
@@ -462,7 +463,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       </div>
 
       {/* Product Form Modal */}
-      {isProductModalOpen && currentProduct && (
+      {isProductModalOpen && currentProduct && createPortal(
         <div 
           className="fixed bg-black/70 backdrop-blur-sm z-[99999] overflow-hidden"
           style={{
@@ -545,7 +546,8 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
               )}
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Notification */}
@@ -556,6 +558,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
         onClose={() => setNotification(prev => ({ ...prev, isVisible: false }))}
         duration={3000}
       />
-    </>
+    </>,
+    document.body
   );
 };
