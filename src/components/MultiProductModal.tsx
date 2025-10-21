@@ -177,20 +177,24 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       let actualExistingOrder = existingOrder;
       if (!actualExistingOrder) {
         console.log('DEBUG - existingOrder is undefined, checking if order exists in database...');
-        const { data: existingOrderData, error: checkError } = await supabase
-          .from('orders')
-          .select(`
-            *,
-            order_details (*)
-          `)
-          .eq('order_number', orderNumber)
-          .single();
-        
-        if (!checkError && existingOrderData) {
-          console.log('DEBUG - Found existing order in database:', existingOrderData);
-          actualExistingOrder = existingOrderData;
-        } else {
-          console.log('DEBUG - No existing order found, creating new one');
+        try {
+          const { data: existingOrderData, error: checkError } = await supabase
+            .from('orders')
+            .select(`
+              *,
+              order_details (*)
+            `)
+            .eq('order_number', orderNumber)
+            .single();
+          
+          if (!checkError && existingOrderData) {
+            console.log('DEBUG - Found existing order in database:', existingOrderData);
+            actualExistingOrder = existingOrderData;
+          } else {
+            console.log('DEBUG - No existing order found, creating new one');
+          }
+        } catch (error) {
+          console.log('DEBUG - Error checking existing order, creating new one:', error);
         }
       }
       
@@ -266,25 +270,37 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       const orderDetails = products.map(product => {
         const detail: any = {
           order_id: orderData.id,
-          ean_code: product.eanCode,
-          client_name: product.clientName,
-          product_name: product.productName,
+          ean_code: product.eanCode || '',
+          client_name: product.clientName || '',
+          product_name: product.productName || '',
           measurements: product.measurements || null,
           package_type: product.packageType || null,
           lot_number: product.lotNumber || null,
           quantity: product.quantity ? parseInt(product.quantity) : 1,
           fronte_retro: product.fronteRetro || false,
-          sagomata: product.sagomata || false
+          sagomata: product.sagomata || false,
+          expiry_date: null,
+          production_date: null
         };
 
         // Gestisci expiry_date solo se fornito
         if (product.expiryDate && product.expiryDate.trim()) {
-          detail.expiry_date = `${product.expiryDate.split('/')[1]}-${product.expiryDate.split('/')[0]}-01`;
+          try {
+            detail.expiry_date = `${product.expiryDate.split('/')[1]}-${product.expiryDate.split('/')[0]}-01`;
+          } catch (error) {
+            console.log('Error parsing expiry date:', error);
+            detail.expiry_date = null;
+          }
         }
 
         // Gestisci production_date solo se fornito
         if (product.productionDate && product.productionDate.trim()) {
-          detail.production_date = `${product.productionDate.split('/')[1]}-${product.productionDate.split('/')[0]}-01`;
+          try {
+            detail.production_date = `${product.productionDate.split('/')[1]}-${product.productionDate.split('/')[0]}-01`;
+          } catch (error) {
+            console.log('Error parsing production date:', error);
+            detail.production_date = null;
+          }
         }
 
         return detail;
