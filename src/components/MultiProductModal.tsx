@@ -323,8 +323,8 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2">
-        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full max-w-7xl h-full max-h-[95vh] flex flex-col rounded-2xl shadow-2xl">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10">
             <div>
@@ -438,8 +438,8 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       {/* Product Form Modal */}
       {isProductModalOpen && currentProduct && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100] p-2">
-          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full max-w-6xl h-full max-h-[95vh] flex flex-col rounded-2xl shadow-2xl">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
+          <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
                 {isEditingExisting ? 'Modifica Etichetta' : 'Aggiungi Etichetta'}
