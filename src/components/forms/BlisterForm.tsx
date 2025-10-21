@@ -79,19 +79,29 @@ export const BlisterForm: React.FC<BlisterFormProps> = ({ orderNumber, onSave, i
 
         if (orderError) throw orderError;
 
+        const detail: any = {
+          order_id: orderData.id,
+          ean_code: formData.eanCode,
+          client_name: formData.clientName,
+          product_name: formData.productName,
+          measurements: formData.measurements || null,
+          lot_number: formData.lotNumber || null,
+          quantity: formData.quantity ? parseInt(formData.quantity) : 1
+        };
+
+        // Gestisci expiry_date solo se fornito
+        if (formData.expiryDate && formData.expiryDate.trim()) {
+          detail.expiry_date = `${formData.expiryDate.split('/')[1]}-${formData.expiryDate.split('/')[0]}-01`;
+        }
+
+        // Gestisci production_date solo se fornito
+        if (formData.productionDate && formData.productionDate.trim()) {
+          detail.production_date = `${formData.productionDate.split('/')[1]}-${formData.productionDate.split('/')[0]}-01`;
+        }
+
         const { error: detailsError } = await supabase
           .from('order_details')
-          .insert({
-            order_id: orderData.id,
-            ean_code: formData.eanCode,
-            client_name: formData.clientName,
-            product_name: formData.productName,
-            measurements: formData.measurements || null,
-            lot_number: formData.lotNumber || null,
-            expiry_date: formData.expiryDate ? `${formData.expiryDate.split('/')[1]}-${formData.expiryDate.split('/')[0]}-01` : null,
-            production_date: formData.productionDate ? `${formData.productionDate.split('/')[1]}-${formData.productionDate.split('/')[0]}-01` : null,
-            quantity: formData.quantity ? parseInt(formData.quantity) : 1
-          });
+          .insert(detail);
 
         if (detailsError) throw detailsError;
 

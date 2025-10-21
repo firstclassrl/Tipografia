@@ -257,18 +257,30 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       }
 
       // Crea i dettagli per tutti i prodotti
-      const orderDetails = products.map(product => ({
-        order_id: orderData.id,
-        ean_code: product.eanCode,
-        client_name: product.clientName,
-        product_name: product.productName,
-        measurements: product.measurements || null,
-        package_type: product.packageType || null,
-        lot_number: product.lotNumber || null,
-        expiry_date: product.expiryDate ? `${product.expiryDate.split('/')[1]}-${product.expiryDate.split('/')[0]}-01` : null,
-        production_date: product.productionDate ? `${product.productionDate.split('/')[1]}-${product.productionDate.split('/')[0]}-01` : null,
-        quantity: product.quantity ? parseInt(product.quantity) : 1
-      }));
+      const orderDetails = products.map(product => {
+        const detail: any = {
+          order_id: orderData.id,
+          ean_code: product.eanCode,
+          client_name: product.clientName,
+          product_name: product.productName,
+          measurements: product.measurements || null,
+          package_type: product.packageType || null,
+          lot_number: product.lotNumber || null,
+          quantity: product.quantity ? parseInt(product.quantity) : 1
+        };
+
+        // Gestisci expiry_date solo se fornito
+        if (product.expiryDate && product.expiryDate.trim()) {
+          detail.expiry_date = `${product.expiryDate.split('/')[1]}-${product.expiryDate.split('/')[0]}-01`;
+        }
+
+        // Gestisci production_date solo se fornito
+        if (product.productionDate && product.productionDate.trim()) {
+          detail.production_date = `${product.productionDate.split('/')[1]}-${product.productionDate.split('/')[0]}-01`;
+        }
+
+        return detail;
+      });
 
       const { error: detailsError } = await supabase
         .from('order_details')
