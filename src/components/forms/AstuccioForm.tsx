@@ -86,9 +86,7 @@ export const AstuccioForm: React.FC<AstuccioFormProps> = ({ orderNumber, onSave,
           product_name: formData.productName,
           package_type: formData.packageType || null,
           lot_number: formData.lotNumber || null,
-          quantity: formData.quantity ? parseInt(formData.quantity) : 1,
-          expiry_date: '2025-12-31', // Default date
-          production_date: '2025-01-01' // Default date
+          quantity: formData.quantity ? parseInt(formData.quantity) : 1
         };
 
         // Gestisci expiry_date solo se fornito
