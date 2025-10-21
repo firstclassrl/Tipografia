@@ -39,10 +39,15 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({ 
-      ...prev, 
-      [name]: type === 'checkbox' ? checked : value 
-    }));
+    console.log('DEBUG - Checkbox change:', { name, type, checked, value });
+    setFormData(prev => {
+      const newData = { 
+        ...prev, 
+        [name]: type === 'checkbox' ? checked : value 
+      };
+      console.log('DEBUG - New form data:', newData);
+      return newData;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -71,6 +76,7 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
     try {
       if (isMultiProduct) {
         // In modalità multi-prodotto, solo passa i dati al parent
+        console.log('DEBUG - Saving form data in multi-product mode:', formData);
         onSave(formData);
       } else {
         // Salvataggio singolo (logica originale)

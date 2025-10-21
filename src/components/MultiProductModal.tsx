@@ -104,6 +104,9 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   };
 
   const saveProduct = (productData: any) => {
+    console.log('DEBUG - saveProduct called with:', productData);
+    console.log('DEBUG - fronteRetro:', productData.fronteRetro);
+    console.log('DEBUG - sagomata:', productData.sagomata);
     if (currentProduct) {
       const updatedProduct = { ...currentProduct, ...productData };
       
