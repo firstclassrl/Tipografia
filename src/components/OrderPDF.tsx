@@ -84,7 +84,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     padding: 3,
-    width: '14%',
+    width: '12%',
     textAlign: 'left',
   },
   tableHeaderCell: {
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000',
     padding: 3,
-    width: '14%',
+    width: '12%',
     textAlign: 'left',
     backgroundColor: '#f0f0f0',
   },
@@ -135,6 +135,7 @@ export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => (
             <Text style={styles.tableHeaderCell}>Etichetta</Text>
             <Text style={styles.tableHeaderCell}>Cliente</Text>
             <Text style={styles.tableHeaderCell}>EAN</Text>
+            <Text style={styles.tableHeaderCell}>Misura</Text>
             <Text style={styles.tableHeaderCell}>Lotto</Text>
             <Text style={styles.tableHeaderCell}>Scadenza</Text>
             <Text style={styles.tableHeaderCell}>Produzione</Text>
@@ -147,6 +148,7 @@ export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => (
               <Text style={styles.tableCell}>{detail.product_name || 'N/A'}</Text>
               <Text style={styles.tableCell}>{detail.client_name || 'N/A'}</Text>
               <Text style={styles.tableCell}>{detail.ean_code || 'N/A'}</Text>
+              <Text style={styles.tableCell}>{detail.measurements || 'N/A'}</Text>
               <Text style={styles.tableCell}>{detail.lot_number || 'N/A'}</Text>
               <Text style={styles.tableCell}>
                 {detail.expiry_date ? new Date(detail.expiry_date).toLocaleDateString('it-IT') : 'N/A'}
