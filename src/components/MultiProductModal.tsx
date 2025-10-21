@@ -34,6 +34,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   printType,
   existingOrder 
 }) => {
+  console.log('DEBUG - MultiProductModal props:', { isOpen, orderNumber, printType, existingOrder });
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);

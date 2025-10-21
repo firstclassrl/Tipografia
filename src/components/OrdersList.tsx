@@ -289,6 +289,7 @@ Cordiali saluti
                   </button>
                   <button
                     onClick={() => {
+                      console.log('DEBUG - Setting selectedOrder:', order);
                       setSelectedOrder(order);
                       setEditModalOpen(true);
                     }}
