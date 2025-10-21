@@ -323,7 +323,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50">
         <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b border-white/10">
@@ -422,7 +422,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           {products.length > 0 && (
             <div className="flex items-center justify-between p-6 border-t border-white/10">
               <p className="text-white/70">
-                {products.length} etichetta{products.length !== 1 ? 'e' : ''} aggiunta{products.length !== 1 ? 'e' : ''}
+                {products.length} {products.length === 1 ? 'etichetta aggiunta' : 'etichette aggiunte'}
               </p>
               <button
                 onClick={saveOrder}
@@ -438,7 +438,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       {/* Product Form Modal */}
       {isProductModalOpen && currentProduct && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[100]">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-[100]">
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
