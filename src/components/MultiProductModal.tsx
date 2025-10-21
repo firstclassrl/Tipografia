@@ -17,6 +17,8 @@ interface ProductItem {
   expiryDate: string;
   productionDate: string;
   quantity: string;
+  fronteRetro?: boolean;
+  sagomata?: boolean;
 }
 
 interface MultiProductModalProps {
@@ -58,7 +60,9 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
         lotNumber: detail.lot_number || '',
         expiryDate: detail.expiry_date ? formatDateForInput(detail.expiry_date) : '',
         productionDate: detail.production_date ? formatDateForInput(detail.production_date) : '',
-        quantity: detail.quantity ? detail.quantity.toString() : ''
+        quantity: detail.quantity ? detail.quantity.toString() : '',
+        fronteRetro: detail.fronte_retro || false,
+        sagomata: detail.sagomata || false
       }));
       setProducts(existingProducts);
     }
@@ -83,7 +87,9 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       lotNumber: '',
       expiryDate: '',
       productionDate: '',
-      quantity: ''
+      quantity: '',
+      fronteRetro: false,
+      sagomata: false
     };
     setCurrentProduct(newProduct);
     setIsEditingExisting(false);
@@ -266,7 +272,9 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           measurements: product.measurements || null,
           package_type: product.packageType || null,
           lot_number: product.lotNumber || null,
-          quantity: product.quantity ? parseInt(product.quantity) : 1
+          quantity: product.quantity ? parseInt(product.quantity) : 1,
+          fronte_retro: product.fronteRetro || false,
+          sagomata: product.sagomata || false
         };
 
         // Gestisci expiry_date solo se fornito
@@ -461,7 +469,9 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                     lotNumber: currentProduct.lotNumber,
                     expiryDate: currentProduct.expiryDate,
                     productionDate: currentProduct.productionDate,
-                    quantity: currentProduct.quantity
+                    quantity: currentProduct.quantity,
+                    fronteRetro: currentProduct.fronteRetro || false,
+                    sagomata: currentProduct.sagomata || false
                   } : undefined}
                 />
               )}

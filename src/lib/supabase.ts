@@ -31,6 +31,8 @@ export interface OrderDetails {
   expiry_date: string;
   production_date: string;
   quantity: number;
+  fronte_retro?: boolean;
+  sagomata?: boolean;
   created_at: string;
 }
 

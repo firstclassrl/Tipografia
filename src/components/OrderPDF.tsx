@@ -148,7 +148,16 @@ export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => (
               <Text style={styles.tableCell}>{detail.product_name || 'N/A'}</Text>
               <Text style={styles.tableCell}>{detail.client_name || 'N/A'}</Text>
               <Text style={styles.tableCell}>{detail.ean_code || 'N/A'}</Text>
-              <Text style={styles.tableCell}>{detail.measurements || 'N/A'}</Text>
+              <Text style={styles.tableCell}>
+                {detail.measurements || 'N/A'}
+                {(detail.fronte_retro || detail.sagomata) && (
+                  <Text style={{ fontSize: 6, color: '#666' }}>
+                    {'\n'}{detail.fronte_retro ? 'Fronte retro' : ''}
+                    {detail.fronte_retro && detail.sagomata ? ', ' : ''}
+                    {detail.sagomata ? 'Sagomata' : ''}
+                  </Text>
+                )}
+              </Text>
               <Text style={styles.tableCell}>{detail.lot_number || 'N/A'}</Text>
               <Text style={styles.tableCell}>
                 {detail.expiry_date ? new Date(detail.expiry_date).toLocaleDateString('it-IT') : 'N/A'}

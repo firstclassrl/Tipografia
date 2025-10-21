@@ -18,6 +18,8 @@ interface FormData {
   expiryDate: string; // mm/yyyy format
   productionDate: string; // mm/yyyy format
   quantity: string;
+  fronteRetro: boolean;
+  sagomata: boolean;
 }
 
 export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSave, isMultiProduct = false, initialData }) => {
@@ -29,13 +31,18 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
     lotNumber: '',
     expiryDate: '',
     productionDate: '',
-    quantity: ''
+    quantity: '',
+    fronteRetro: false,
+    sagomata: false
   });
   const [loading, setLoading] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+    setFormData(prev => ({ 
+      ...prev, 
+      [name]: type === 'checkbox' ? checked : value 
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,7 +93,9 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
           product_name: formData.productName,
           measurements: formData.measurements || null,
           lot_number: formData.lotNumber || null,
-          quantity: formData.quantity ? parseInt(formData.quantity) : 1
+          quantity: formData.quantity ? parseInt(formData.quantity) : 1,
+          fronte_retro: formData.fronteRetro,
+          sagomata: formData.sagomata
         };
 
         // Gestisci expiry_date solo se fornito
@@ -182,6 +191,31 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
             className="w-full px-4 py-3 backdrop-blur-sm bg-white/10 border border-white/30 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all text-white placeholder-white/50 font-medium"
             placeholder="Es. 50x30mm"
           />
+          
+          {/* Checkbox per opzioni etichetta */}
+          <div className="flex gap-6 mt-3">
+            <label className="flex items-center gap-2 text-white cursor-pointer">
+              <input
+                type="checkbox"
+                name="fronteRetro"
+                checked={formData.fronteRetro}
+                onChange={handleInputChange}
+                className="w-4 h-4 text-red-500 bg-white/10 border-white/30 rounded focus:ring-red-500 focus:ring-2"
+              />
+              <span className="text-sm font-medium">Fronte retro</span>
+            </label>
+            
+            <label className="flex items-center gap-2 text-white cursor-pointer">
+              <input
+                type="checkbox"
+                name="sagomata"
+                checked={formData.sagomata}
+                onChange={handleInputChange}
+                className="w-4 h-4 text-red-500 bg-white/10 border-white/30 rounded focus:ring-red-500 focus:ring-2"
+              />
+              <span className="text-sm font-medium">Sagomata</span>
+            </label>
+          </div>
         </div>
 
         <div>
