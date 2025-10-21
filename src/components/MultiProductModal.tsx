@@ -119,6 +119,39 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
     setProducts(prev => prev.filter(p => p.id !== productId));
   };
 
+  const generateNewOrderNumber = async () => {
+    try {
+      // Recupera l'ultimo numero ordine dal database
+      const { data: lastOrder, error } = await supabase
+        .from('orders')
+        .select('order_number')
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (error) {
+        console.error('Errore nel recuperare l\'ultimo ordine:', error);
+        // Se c'è un errore, usa il timestamp come fallback
+        return `ORD${Date.now()}`;
+      }
+
+      // Se non ci sono ordini, inizia da 1
+      if (!lastOrder || lastOrder.length === 0) {
+        return 'ORD1';
+      }
+
+      // Estrai il numero dall'ultimo ordine e incrementa
+      const lastOrderNumber = lastOrder[0].order_number;
+      const lastNumber = parseInt(lastOrderNumber.replace('ORD', ''));
+      const nextNumber = isNaN(lastNumber) ? 1 : lastNumber + 1;
+      
+      return `ORD${nextNumber}`;
+    } catch (error) {
+      console.error('Errore nella generazione del numero ordine:', error);
+      // Fallback in caso di errore
+      return `ORD${Date.now()}`;
+    }
+  };
+
   const saveOrder = async () => {
     if (products.length === 0) {
       alert('⚠️ Attenzione\n\nAggiungi almeno un prodotto prima di salvare l\'ordine.');
@@ -127,6 +160,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
     try {
       let orderData;
+      let currentOrderNumber = orderNumber;
       
       if (existingOrder) {
         // MODIFICA ORDINE ESISTENTE
@@ -151,19 +185,49 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           .eq('order_id', existingOrder.id);
 
       } else {
-        // NUOVO ORDINE
-        const { data: newOrder, error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            order_number: orderNumber,
-            print_type: printType,
-            status: 'bozza'
-          })
-          .select()
-          .single();
+        // NUOVO ORDINE - con retry per duplicati
+        let attempts = 0;
+        const maxAttempts = 3;
+        
+        while (attempts < maxAttempts) {
+          try {
+            const { data: newOrder, error: orderError } = await supabase
+              .from('orders')
+              .insert({
+                order_number: currentOrderNumber,
+                print_type: printType,
+                status: 'bozza'
+              })
+              .select()
+              .single();
 
-        if (orderError) throw orderError;
-        orderData = newOrder;
+            if (orderError) {
+              // Se è un errore di chiave duplicata, genera un nuovo numero
+              if (orderError.code === '23505' || orderError.message?.includes('duplicate key')) {
+                attempts++;
+                currentOrderNumber = await generateNewOrderNumber();
+                console.log(`Tentativo ${attempts}: nuovo numero ordine ${currentOrderNumber}`);
+                continue;
+              }
+              throw orderError;
+            }
+            
+            orderData = newOrder;
+            break; // Successo, esci dal loop
+            
+          } catch (error: any) {
+            if (error.code === '23505' || error.message?.includes('duplicate key')) {
+              attempts++;
+              if (attempts >= maxAttempts) {
+                throw new Error('Impossibile generare un numero ordine univoco dopo 3 tentativi');
+              }
+              currentOrderNumber = await generateNewOrderNumber();
+              console.log(`Tentativo ${attempts}: nuovo numero ordine ${currentOrderNumber}`);
+              continue;
+            }
+            throw error;
+          }
+        }
       }
 
       // Crea i dettagli per tutti i prodotti
@@ -189,7 +253,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       // Mostra notifica di successo
       const action = existingOrder ? 'modificato' : 'salvato';
       setNotification({
-        message: `Ordine N. ${orderNumber} ${action}`,
+        message: `Ordine N. ${currentOrderNumber} ${action}`,
         type: 'success',
         isVisible: true
       });
