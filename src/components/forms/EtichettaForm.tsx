@@ -94,8 +94,8 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
           measurements: formData.measurements || null,
           lot_number: formData.lotNumber || null,
           quantity: formData.quantity ? parseInt(formData.quantity) : 1,
-          // fronte_retro: formData.fronteRetro,
-          // sagomata: formData.sagomata
+          fronte_retro: formData.fronteRetro,
+          sagomata: formData.sagomata
         };
 
         // Gestisci expiry_date solo se fornito
