@@ -153,6 +153,10 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   };
 
   const saveOrder = async () => {
+    console.log('DEBUG - existingOrder:', existingOrder);
+    console.log('DEBUG - orderNumber:', orderNumber);
+    console.log('DEBUG - printType:', printType);
+    
     if (products.length === 0) {
       alert('⚠️ Attenzione\n\nAggiungi almeno un prodotto prima di salvare l\'ordine.');
       return;
