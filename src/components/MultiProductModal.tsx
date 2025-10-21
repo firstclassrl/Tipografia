@@ -167,7 +167,28 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       let orderData;
       let currentOrderNumber = orderNumber;
       
-      if (existingOrder) {
+      // Se existingOrder non è definito, controlla se l'ordine esiste già nel database
+      let actualExistingOrder = existingOrder;
+      if (!actualExistingOrder) {
+        console.log('DEBUG - existingOrder is undefined, checking if order exists in database...');
+        const { data: existingOrderData, error: checkError } = await supabase
+          .from('orders')
+          .select(`
+            *,
+            order_details (*)
+          `)
+          .eq('order_number', orderNumber)
+          .single();
+        
+        if (!checkError && existingOrderData) {
+          console.log('DEBUG - Found existing order in database:', existingOrderData);
+          actualExistingOrder = existingOrderData;
+        } else {
+          console.log('DEBUG - No existing order found, creating new one');
+        }
+      }
+      
+      if (actualExistingOrder) {
         // MODIFICA ORDINE ESISTENTE
         // Aggiorna l'ordine principale
         const { data: updatedOrder, error: orderError } = await supabase
@@ -176,7 +197,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
             print_type: printType,
             status: 'bozza'
           })
-          .eq('id', existingOrder.id)
+          .eq('id', actualExistingOrder.id)
           .select()
           .single();
 
@@ -187,7 +208,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
         await supabase
           .from('order_details')
           .delete()
-          .eq('order_id', existingOrder.id);
+          .eq('order_id', actualExistingOrder.id);
 
       } else {
         // NUOVO ORDINE - con retry per duplicati
