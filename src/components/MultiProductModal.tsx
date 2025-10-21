@@ -278,8 +278,8 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           package_type: product.packageType || null,
           lot_number: product.lotNumber || null,
           quantity: product.quantity ? parseInt(product.quantity) : 1,
-          fronte_retro: product.fronteRetro || false,
-          sagomata: product.sagomata || false,
+          // fronte_retro: product.fronteRetro || false,
+          // sagomata: product.sagomata || false,
           expiry_date: null,
           production_date: null
         };
