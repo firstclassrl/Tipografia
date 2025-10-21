@@ -95,7 +95,9 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
           lot_number: formData.lotNumber || null,
           quantity: formData.quantity ? parseInt(formData.quantity) : 1,
           // fronte_retro: formData.fronteRetro,
-          // sagomata: formData.sagomata
+          // sagomata: formData.sagomata,
+          expiry_date: '2025-12-31', // Default date
+          production_date: '2025-01-01' // Default date
         };
 
         // Gestisci expiry_date solo se fornito
