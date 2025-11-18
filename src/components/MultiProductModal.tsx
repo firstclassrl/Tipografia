@@ -44,15 +44,6 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   existingOrder 
 }) => {
   console.log('DEBUG - MultiProductModal props:', { isOpen, orderNumber, printType, existingOrder });
-  const currentProductLabel = productLabels[printType];
-  const isFeminineProduct = printType === 'etichetta';
-  const noProductsMessage = isFeminineProduct
-    ? `Nessuna ${currentProductLabel.singularLower} aggiunta`
-    : `Nessun ${currentProductLabel.singularLower} aggiunto`;
-  const addInstructionText = `Clicca su "Aggiungi ${currentProductLabel.singular}" per iniziare`;
-  const addedCountLabel = products.length === 1
-    ? `1 ${currentProductLabel.singularLower} ${isFeminineProduct ? 'aggiunta' : 'aggiunto'}`
-    : `${products.length} ${currentProductLabel.pluralLower} ${isFeminineProduct ? 'aggiunte' : 'aggiunti'}`;
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -62,6 +53,15 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
     type: 'success',
     isVisible: false
   });
+  const currentProductLabel = productLabels[printType];
+  const isFeminineProduct = printType === 'etichetta';
+  const noProductsMessage = isFeminineProduct
+    ? `Nessuna ${currentProductLabel.singularLower} aggiunta`
+    : `Nessun ${currentProductLabel.singularLower} aggiunto`;
+  const addInstructionText = `Clicca su "Aggiungi ${currentProductLabel.singular}" per iniziare`;
+  const addedCountLabel = products.length === 1
+    ? `1 ${currentProductLabel.singularLower} ${isFeminineProduct ? 'aggiunta' : 'aggiunto'}`
+    : `${products.length} ${currentProductLabel.pluralLower} ${isFeminineProduct ? 'aggiunte' : 'aggiunti'}`;
 
   // Carica prodotti esistenti quando si modifica un ordine
   useEffect(() => {
