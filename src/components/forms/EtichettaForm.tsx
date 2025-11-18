@@ -92,13 +92,14 @@ export const EtichettaForm: React.FC<EtichettaFormProps> = ({ orderNumber, onSav
 
         if (orderError) throw orderError;
 
+        const normalizedLotNumber = formData.lotNumber?.trim();
         const detail: any = {
           order_id: orderData.id,
           ean_code: formData.eanCode,
           client_name: formData.clientName,
           product_name: formData.productName,
           measurements: formData.measurements || null,
-          lot_number: formData.lotNumber || null,
+          lot_number: normalizedLotNumber || 'N/A',
           quantity: formData.quantity ? parseInt(formData.quantity) : 1,
           fronte_retro: formData.fronteRetro,
           sagomata: formData.sagomata

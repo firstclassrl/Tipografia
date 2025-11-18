@@ -73,7 +73,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
         productName: detail.product_name || '',
         measurements: detail.measurements || '',
         packageType: detail.package_type || '',
-        lotNumber: detail.lot_number || '',
+        lotNumber: detail.lot_number && detail.lot_number !== 'N/A' ? detail.lot_number : '',
         expiryDate: detail.expiry_date ? formatDateForInput(detail.expiry_date) : '',
         productionDate: detail.production_date ? formatDateForInput(detail.production_date) : '',
         quantity: detail.quantity ? detail.quantity.toString() : '',
@@ -287,6 +287,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
 
       // Crea i dettagli per tutti i prodotti
       const orderDetails = products.map(product => {
+        const normalizedLotNumber = product.lotNumber?.trim();
         const detail: any = {
           order_id: orderData.id,
           ean_code: product.eanCode || '',
@@ -294,7 +295,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           product_name: product.productName || '',
           measurements: product.measurements || null,
           package_type: product.packageType || null,
-          lot_number: product.lotNumber || null,
+          lot_number: normalizedLotNumber || 'N/A',
           quantity: product.quantity ? parseInt(product.quantity) : 1,
           fronte_retro: product.fronteRetro || false,
           sagomata: product.sagomata || false,

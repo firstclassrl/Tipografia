@@ -79,13 +79,14 @@ export const AstuccioForm: React.FC<AstuccioFormProps> = ({ orderNumber, onSave,
 
         if (orderError) throw orderError;
 
+        const normalizedLotNumber = formData.lotNumber?.trim();
         const detail: any = {
           order_id: orderData.id,
           ean_code: formData.eanCode,
           client_name: formData.clientName,
           product_name: formData.productName,
           package_type: formData.packageType || null,
-          lot_number: formData.lotNumber || null,
+          lot_number: normalizedLotNumber || 'N/A',
           quantity: formData.quantity ? parseInt(formData.quantity) : 1
         };
 
