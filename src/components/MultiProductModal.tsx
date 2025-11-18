@@ -30,6 +30,12 @@ interface MultiProductModalProps {
   existingOrder?: any; // Per modificare ordini esistenti
 }
 
+const productLabels = {
+  etichetta: { singular: 'Etichetta', plural: 'Etichette', singularLower: 'etichetta', pluralLower: 'etichette' },
+  astuccio: { singular: 'Astuccio', plural: 'Astucci', singularLower: 'astuccio', pluralLower: 'astucci' },
+  blister: { singular: 'Blister', plural: 'Blister', singularLower: 'blister', pluralLower: 'blister' }
+} as const;
+
 export const MultiProductModal: React.FC<MultiProductModalProps> = ({ 
   isOpen, 
   onClose, 
@@ -38,6 +44,15 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
   existingOrder 
 }) => {
   console.log('DEBUG - MultiProductModal props:', { isOpen, orderNumber, printType, existingOrder });
+  const currentProductLabel = productLabels[printType];
+  const isFeminineProduct = printType === 'etichetta';
+  const noProductsMessage = isFeminineProduct
+    ? `Nessuna ${currentProductLabel.singularLower} aggiunta`
+    : `Nessun ${currentProductLabel.singularLower} aggiunto`;
+  const addInstructionText = `Clicca su "Aggiungi ${currentProductLabel.singular}" per iniziare`;
+  const addedCountLabel = products.length === 1
+    ? `1 ${currentProductLabel.singularLower} ${isFeminineProduct ? 'aggiunta' : 'aggiunto'}`
+    : `${products.length} ${currentProductLabel.pluralLower} ${isFeminineProduct ? 'aggiunte' : 'aggiunti'}`;
   const [products, setProducts] = useState<ProductItem[]>([]);
   const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
@@ -380,7 +395,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 style={{ zIndex: 9999, position: 'relative' }}
               >
                 <Plus className="h-5 w-5" />
-                Aggiungi Etichetta
+                {`Aggiungi ${currentProductLabel.singular}`}
               </button>
             </div>
 
@@ -388,16 +403,16 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
             {products.length === 0 ? (
               <div className="text-center py-12">
                 <div className="text-white/50 text-lg mb-4">
-                  Nessuna etichetta aggiunta
+                  {noProductsMessage}
                 </div>
                 <p className="text-white/30">
-                  Clicca su "Aggiungi Etichetta" per iniziare
+                  {addInstructionText}
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-white mb-4">
-                  Etichette ({products.length})
+                  {`${currentProductLabel.plural} (${products.length})`}
                 </h3>
                 {products.map((product, index) => (
                   <div
@@ -406,7 +421,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                   >
                     <div className="flex items-center justify-between mb-3">
                       <h4 className="font-medium text-white">
-                        Etichetta #{index + 1}
+                        {`${currentProductLabel.singular} #${index + 1}`}
                       </h4>
                       <div className="flex items-center gap-2">
                         <button
@@ -451,7 +466,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           {products.length > 0 && (
             <div className="flex items-center justify-between p-6 border-t border-white/10">
               <p className="text-white/70">
-                {products.length} {products.length === 1 ? 'etichetta aggiunta' : 'etichette aggiunte'}
+                {addedCountLabel}
               </p>
               <button
                 onClick={saveOrder}
@@ -480,7 +495,7 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
           <div className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 w-full h-full flex flex-col overflow-hidden">
             <div className="flex items-center justify-between p-6 border-b border-white/10">
               <h3 className="text-xl font-bold text-white">
-                {isEditingExisting ? 'Modifica Etichetta' : 'Aggiungi Etichetta'}
+                {isEditingExisting ? `Modifica ${currentProductLabel.singular}` : `Aggiungi ${currentProductLabel.singular}`}
               </h3>
               <button
                 onClick={() => {
