@@ -34,6 +34,10 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
     return `${month}/${year}`;
   };
 
+  const isAstuccio = order.print_type === 'astuccio';
+  const productsTitle = isAstuccio ? 'Astucci' : 'Etichette';
+  const productColumnLabel = isAstuccio ? 'Astuccio' : 'Etichetta';
+
 
   return (
     <>
@@ -98,13 +102,15 @@ export const OrderViewModal: React.FC<OrderViewModalProps> = ({
               {/* Products Table */}
               <div className="mb-3">
                 <h2 className="text-xl font-bold text-gray-900 mb-4 border-b border-gray-300 pb-2">
-                  Etichette
+                  {productsTitle}
                 </h2>
                 <div className="overflow-x-auto">
                   <table className="w-full border-collapse border border-gray-300 text-sm">
                     <thead>
                       <tr className="bg-gray-50">
-                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Etichetta</th>
+                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold">
+                          {productColumnLabel}
+                        </th>
                         <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Cliente</th>
                         <th className="border border-gray-300 px-3 py-2 text-left font-semibold">EAN</th>
                         <th className="border border-gray-300 px-3 py-2 text-left font-semibold">Lotto</th>

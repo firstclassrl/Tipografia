@@ -39,3 +39,19 @@ export interface OrderDetails {
 export interface OrderWithDetails extends Order {
   order_details: OrderDetails[];
 }
+
+export interface Typography {
+  id: string;
+  name: string;
+  contact_person?: string | null;
+  email: string;
+  created_at: string;
+}
+
+export interface OrderTypographySend {
+  id: string;
+  order_id: string;
+  typography_id: string;
+  pdf_path: string | null;
+  created_at: string;
+}

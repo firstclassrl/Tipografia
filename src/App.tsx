@@ -2,6 +2,7 @@ import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import { HomePage } from './pages/HomePage';
 import { OrdersPage } from './pages/OrdersPage';
+import { TypographiesPage } from './pages/TypographiesPage';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/orders" element={<OrdersPage />} />
+        <Route path="/tipografie" element={<TypographiesPage />} />
       </Routes>
       
       {/* Custom styles for animations */}

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Eye } from 'lucide-react';
+import { Plus, Eye, Building2 } from 'lucide-react';
 import { OrderModal } from '../components/OrderModal';
 import { supabase } from '../lib/supabase';
 import logoFarmap from '../assets/logo farmap industry.png';
@@ -99,7 +99,7 @@ export const HomePage: React.FC = () => {
 
         {/* Main Action Buttons */}
         <div className="text-center mb-16 relative z-10">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-8 sm:gap-12 flex-wrap">
           <button
             onClick={handleNewOrder}
             className="group relative inline-flex items-center gap-4 px-12 py-6 bg-gradient-to-r from-red-600 via-red-500 to-red-700 text-white rounded-2xl font-bold text-xl shadow-2xl hover:shadow-red-500/25 transform hover:-translate-y-2 hover:scale-105 transition-all duration-500 border border-red-400/30"
@@ -130,6 +130,24 @@ export const HomePage: React.FC = () => {
                 <Eye className="h-7 w-7 group-hover:scale-110 transition-transform duration-500" />
               </div>
               <span className="tracking-wide">GESTIONE ORDINI</span>
+              <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+            </div>
+            
+            {/* Glow effect */}
+            <div className="absolute inset-0 rounded-2xl bg-white/20 blur-xl opacity-0 group-hover:opacity-30 transition-opacity duration-500 -z-10"></div>
+          </Link>
+
+          <Link
+            to="/tipografie"
+            className="group relative inline-flex items-center gap-4 px-12 py-6 backdrop-blur-xl bg-white/10 border border-white/20 text-white rounded-2xl font-bold text-xl shadow-2xl hover:bg-white/15 hover:border-white/30 transform hover:-translate-y-2 hover:scale-105 transition-all duration-500"
+          >
+            <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 backdrop-blur-sm"></div>
+            
+            <div className="relative flex items-center gap-4">
+              <div className="p-2 bg-white/20 rounded-xl group-hover:bg-white/30 transition-colors duration-300">
+                <Building2 className="h-7 w-7 group-hover:scale-110 transition-transform duration-500" />
+              </div>
+              <span className="tracking-wide">TIPOGRAFIE</span>
               <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
             </div>
             

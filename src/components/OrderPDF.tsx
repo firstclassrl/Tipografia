@@ -103,73 +103,79 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => (
-  <Document>
-    <Page size="A4" orientation="landscape" style={styles.page}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.title}>ORDINE DI STAMPA - FARMAP INDUSTRY</Text>
-        <View style={styles.orderInfo}>
-          <Text>Ordine: {order.order_number}</Text>
-          <Text>Data: {new Date(order.created_at).toLocaleDateString('it-IT')}</Text>
-        </View>
-      </View>
+export const OrderPDF: React.FC<OrderPDFProps> = ({ order }) => {
+  const isAstuccio = order.print_type === 'astuccio';
+  const productsTitle = isAstuccio ? 'Astucci' : 'Etichette';
+  const productColumnLabel = isAstuccio ? 'Astuccio' : 'Etichetta';
 
-      {/* Order Details */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Dettagli Ordine</Text>
-        <View style={styles.detailsGrid}>
-          <View style={styles.detailItem}>
-            <Text style={styles.detailLabel}>Data Creazione:</Text>
-            <Text>{new Date(order.created_at).toLocaleDateString('it-IT')}</Text>
+  return (
+    <Document>
+      <Page size="A4" orientation="landscape" style={styles.page}>
+        {/* Header */}
+        <View style={styles.header}>
+          <Text style={styles.title}>ORDINE DI STAMPA - FARMAP INDUSTRY</Text>
+          <View style={styles.orderInfo}>
+            <Text>Ordine: {order.order_number}</Text>
+            <Text>Data: {new Date(order.created_at).toLocaleDateString('it-IT')}</Text>
           </View>
         </View>
-      </View>
 
-      {/* Products Table */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Etichette</Text>
-        <View style={styles.table}>
-          {/* Table Header */}
-          <View style={[styles.tableRow, styles.tableHeader]}>
-            <Text style={styles.tableHeaderCell}>Etichetta</Text>
-            <Text style={styles.tableHeaderCell}>Cliente</Text>
-            <Text style={styles.tableHeaderCell}>EAN</Text>
-            <Text style={styles.tableHeaderCell}>Misura</Text>
-            <Text style={styles.tableHeaderCell}>Lotto</Text>
-            <Text style={styles.tableHeaderCell}>Scadenza</Text>
-            <Text style={styles.tableHeaderCell}>Produzione</Text>
-            <Text style={styles.tableHeaderCell}>Qtà</Text>
-          </View>
-          
-          {/* Table Rows */}
-          {order.order_details.map((detail, index) => (
-            <View key={index} style={styles.tableRow}>
-              <Text style={styles.tableCell}>{detail.product_name || 'N/A'}</Text>
-              <Text style={styles.tableCell}>{detail.client_name || 'N/A'}</Text>
-              <Text style={styles.tableCell}>{detail.ean_code || 'N/A'}</Text>
-              <Text style={styles.tableCell}>
-                {detail.measurements || 'N/A'}
-                {(detail.fronte_retro || detail.sagomata) && (
-                  <Text style={{ fontSize: 6, color: '#666' }}>
-                    {'\n'}{detail.fronte_retro ? 'Fronte retro' : ''}
-                    {detail.fronte_retro && detail.sagomata ? ', ' : ''}
-                    {detail.sagomata ? 'Sagomata' : ''}
-                  </Text>
-                )}
-              </Text>
-              <Text style={styles.tableCell}>{detail.lot_number || 'N/A'}</Text>
-              <Text style={styles.tableCell}>
-                {detail.expiry_date ? new Date(detail.expiry_date).toLocaleDateString('it-IT') : 'N/A'}
-              </Text>
-              <Text style={styles.tableCell}>
-                {detail.production_date ? new Date(detail.production_date).toLocaleDateString('it-IT') : 'N/A'}
-              </Text>
-              <Text style={styles.tableCell}>{detail.quantity || 'N/A'}</Text>
+        {/* Order Details */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dettagli Ordine</Text>
+          <View style={styles.detailsGrid}>
+            <View style={styles.detailItem}>
+              <Text style={styles.detailLabel}>Data Creazione:</Text>
+              <Text>{new Date(order.created_at).toLocaleDateString('it-IT')}</Text>
             </View>
-          ))}
+          </View>
         </View>
-      </View>
-    </Page>
-  </Document>
-);
+
+        {/* Products Table */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{productsTitle}</Text>
+          <View style={styles.table}>
+            {/* Table Header */}
+            <View style={[styles.tableRow, styles.tableHeader]}>
+              <Text style={styles.tableHeaderCell}>{productColumnLabel}</Text>
+              <Text style={styles.tableHeaderCell}>Cliente</Text>
+              <Text style={styles.tableHeaderCell}>EAN</Text>
+              <Text style={styles.tableHeaderCell}>Misura</Text>
+              <Text style={styles.tableHeaderCell}>Lotto</Text>
+              <Text style={styles.tableHeaderCell}>Scadenza</Text>
+              <Text style={styles.tableHeaderCell}>Produzione</Text>
+              <Text style={styles.tableHeaderCell}>Qtà</Text>
+            </View>
+            
+            {/* Table Rows */}
+            {order.order_details.map((detail, index) => (
+              <View key={index} style={styles.tableRow}>
+                <Text style={styles.tableCell}>{detail.product_name || 'N/A'}</Text>
+                <Text style={styles.tableCell}>{detail.client_name || 'N/A'}</Text>
+                <Text style={styles.tableCell}>{detail.ean_code || 'N/A'}</Text>
+                <Text style={styles.tableCell}>
+                  {detail.measurements || 'N/A'}
+                  {(detail.fronte_retro || detail.sagomata) && (
+                    <Text style={{ fontSize: 6, color: '#666' }}>
+                      {'\n'}{detail.fronte_retro ? 'Fronte retro' : ''}
+                      {detail.fronte_retro && detail.sagomata ? ', ' : ''}
+                      {detail.sagomata ? 'Sagomata' : ''}
+                    </Text>
+                  )}
+                </Text>
+                <Text style={styles.tableCell}>{detail.lot_number || 'N/A'}</Text>
+                <Text style={styles.tableCell}>
+                  {detail.expiry_date ? new Date(detail.expiry_date).toLocaleDateString('it-IT') : 'N/A'}
+                </Text>
+                <Text style={styles.tableCell}>
+                  {detail.production_date ? new Date(detail.production_date).toLocaleDateString('it-IT') : 'N/A'}
+                </Text>
+                <Text style={styles.tableCell}>{detail.quantity || 'N/A'}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      </Page>
+    </Document>
+  );
+};

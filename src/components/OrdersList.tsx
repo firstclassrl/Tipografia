@@ -4,8 +4,7 @@ import { FileText, Mail, Calendar, Package, Eye, Trash2, Edit, ChevronDown } fro
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { OrderViewModal } from './OrderViewModal';
 import { MultiProductModal } from './MultiProductModal';
-import { pdf } from '@react-pdf/renderer';
-import { OrderPDF } from './OrderPDF';
+import { OrderSendModal } from './OrderSendModal';
 
 type OrdersListProps = {
   grouping?: 'monthly' | 'yearly';
@@ -20,6 +19,7 @@ export const OrdersList: React.FC<OrdersListProps> = ({ grouping = 'monthly', cl
   const [selectedOrder, setSelectedOrder] = useState<OrderWithDetails | null>(null);
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [sendModalOpen, setSendModalOpen] = useState(false);
   const [editingStatus, setEditingStatus] = useState<number | null>(null);
   const [openFolders, setOpenFolders] = useState<Record<string, boolean>>({});
 
@@ -216,10 +216,50 @@ Cordiali saluti
 
   const getPrintTypeIcon = (type: string) => {
     switch (type) {
-      case 'etichetta': return <FileText className="h-6 w-6 text-red-400" />;
-      case 'astuccio': return <Package className="h-6 w-6 text-white" />;
-      case 'blister': return <Package className="h-6 w-6 text-red-300" />;
-      default: return <FileText className="h-6 w-6 text-white" />;
+      case 'etichetta':
+        return <FileText className="h-6 w-6 text-red-400" />;
+      case 'astuccio':
+        // Icona scatola bianca per gli astucci
+        return <Package className="h-6 w-6 text-white" />;
+      case 'blister':
+        return <Package className="h-6 w-6 text-red-300" />;
+      default:
+        return <FileText className="h-6 w-6 text-white" />;
+    }
+  };
+
+  const getPrintTypeConfig = (type: string) => {
+    switch (type) {
+      case 'etichetta':
+        return {
+          label: 'Etichetta',
+          labelClass: 'text-red-300',
+          iconContainerClass:
+            'bg-gradient-to-br from-red-500/20 to-red-700/20 border-red-500/30',
+        };
+      case 'astuccio':
+        return {
+          label: 'Astuccio',
+          // Scritta azzurra per distinguere subito gli astucci
+          labelClass: 'text-sky-400',
+          // Quadrato azzurro per l’icona del cartone
+          iconContainerClass:
+            'bg-sky-500/20 border-sky-400/60',
+        };
+      case 'blister':
+        return {
+          label: 'Blister',
+          labelClass: 'text-red-300',
+          iconContainerClass:
+            'bg-gradient-to-br from-red-500/20 to-red-700/20 border-red-500/30',
+        };
+      default:
+        return {
+          label: type,
+          labelClass: 'text-red-300',
+          iconContainerClass:
+            'bg-gradient-to-br from-red-500/20 to-red-700/20 border-red-500/30',
+        };
     }
   };
 
@@ -268,12 +308,24 @@ Cordiali saluti
                     <div key={order.id} className="backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl p-4 hover:bg-white/15 hover:border-white/30 transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-xl">
                       <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-gradient-to-br from-red-500/20 to-red-700/20 rounded-xl border border-red-500/30">
-                    {getPrintTypeIcon(order.print_type)}
-                  </div>
+                  {(() => {
+                    const { iconContainerClass } = getPrintTypeConfig(order.print_type);
+                    return (
+                      <div className={`p-3 rounded-xl border ${iconContainerClass}`}>
+                        {getPrintTypeIcon(order.print_type)}
+                      </div>
+                    );
+                  })()}
                   <div>
                     <h3 className="font-bold text-white text-lg">Ordine {order.order_number}</h3>
-                    <p className="text-red-300 capitalize font-medium">{order.print_type}</p>
+                    {(() => {
+                      const { label, labelClass } = getPrintTypeConfig(order.print_type);
+                      return (
+                        <p className={`${labelClass} font-medium`}>
+                          {label}
+                        </p>
+                      );
+                    })()}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -299,7 +351,10 @@ Cordiali saluti
                     Modifica
                   </button>
                   <button
-                    onClick={() => sendEmail(order)}
+                    onClick={() => {
+                      setSelectedOrder(order);
+                      setSendModalOpen(true);
+                    }}
                     className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-xl transition-all duration-300 shadow-lg hover:shadow-red-500/25 font-medium"
                   >
                     <Mail className="h-4 w-4" />
@@ -365,6 +420,17 @@ Cordiali saluti
           orderNumber={selectedOrder.order_number}
           printType={selectedOrder.print_type as 'etichetta' | 'astuccio' | 'blister'}
           existingOrder={selectedOrder}
+        />
+      )}
+
+      {selectedOrder && (
+        <OrderSendModal
+          isOpen={sendModalOpen}
+          order={selectedOrder}
+          onClose={() => {
+            setSendModalOpen(false);
+            setSelectedOrder(null);
+          }}
         />
       )}
     </div>
