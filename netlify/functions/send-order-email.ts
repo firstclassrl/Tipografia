@@ -90,20 +90,31 @@ export const handler: Handler = async (event) => {
       recipients,
     };
 
-    const response = await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const response = await fetch(webhookUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    if (!response.ok) {
-      const text = await response.text().catch(() => '');
-      console.error('Errore chiamando n8n:', response.status, text);
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        console.error('Errore chiamando n8n:', response.status, text);
+        return {
+          statusCode: 502,
+          body: JSON.stringify({
+            error: `Errore chiamando n8n (${response.status})`,
+            details: text,
+          }),
+        };
+      }
+    } catch (e: any) {
+      console.error('Fetch verso n8n fallita:', e);
       return {
         statusCode: 502,
         body: JSON.stringify({
-          error: `Errore chiamando n8n (${response.status})`,
-          details: text,
+          error: 'fetch to n8n failed',
+          details: String(e?.message || e),
         }),
       };
     }
