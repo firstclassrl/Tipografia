@@ -22,6 +22,12 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
   const [loadingTypographies, setLoadingTypographies] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [subject, setSubject] = useState(
+    `Ordine Tipografia ${order?.order_number ?? ''}`.trim(),
+  );
+  const [bodyTemplate, setBodyTemplate] = useState(
+    'Ciao {{contact_person}}, ti allego il PDF destinato a {{name}}.',
+  );
 
   useEffect(() => {
     if (!isOpen) {
@@ -72,7 +78,25 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
 
       await createOrderTypographySends(order.id, selectedIds, pdfPath);
 
-      setSuccess('Richiesta di invio ordine registrata correttamente.');
+      const resp = await fetch('/.netlify/functions/send-order-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pdfPath,
+          typographyIds: selectedIds,
+          subject: subject.trim() || `Ordine Tipografia ${order.order_number}`,
+          bodyTemplate: bodyTemplate.trim(),
+        }),
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => ({}));
+        throw new Error(
+          data.error || 'Errore nella funzione server di invio mail ordine.',
+        );
+      }
+
+      setSuccess('Richiesta di invio ordine registrata e inviata a n8n.');
     } catch (err) {
       console.error(err);
       setError('Errore durante la registrazione dell\'invio ordine.');
@@ -119,6 +143,34 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
               </span>
             </div>
           )}
+        </div>
+
+        <div className="mb-4 grid gap-3 md:grid-cols-2">
+          <div>
+            <label className="block text-xs font-medium text-white/70 mb-1">
+              Oggetto email
+            </label>
+            <input
+              type="text"
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/80"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-white/70 mb-1">
+              Template corpo email
+            </label>
+            <input
+              type="text"
+              value={bodyTemplate}
+              onChange={(e) => setBodyTemplate(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/80"
+            />
+            <p className="mt-1 text-[10px] text-white/50">
+              Puoi usare le variabili {'{{contact_person}}'} e {'{{name}}'} nel testo.
+            </p>
+          </div>
         </div>
 
         {error && (
