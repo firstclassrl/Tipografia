@@ -26,8 +26,84 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
     `Ordine Tipografia ${order?.order_number ?? ''}`.trim(),
   );
   const [bodyTemplate, setBodyTemplate] = useState(
-    'Ciao {{contact_person}}, ti allego il PDF destinato a {{name}}.',
+    `<html>
+  <body style="margin:0; padding:0; background-color:#f5f5f5;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f5f5; padding:20px 0;">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background-color:#ffffff; border-radius:8px; overflow:hidden; border:1px solid #e0e0e0;">
+            <!-- Header -->
+            <tr>
+              <td style="background-color:#000000; padding:16px 24px; text-align:left;">
+                <span style="color:#d62828; font-family:Arial, sans-serif; font-size:18px; font-weight:bold;">
+                  FARMAP Industry
+                </span>
+              </td>
+            </tr>
+            <!-- Titolo -->
+            <tr>
+              <td style="padding:24px 24px 8px 24px; font-family:Arial, sans-serif;">
+                <h1 style="margin:0; font-size:20px; color:#d62828;">
+                  Ordine tipografia – {{name}}
+                </h1>
+              </td>
+            </tr>
+            <!-- Testo principale -->
+            <tr>
+              <td style="padding:0 24px 16px 24px; font-family:Arial, sans-serif; color:#333333; font-size:14px; line-height:1.6;">
+                <p style="margin:0 0 12px 0;">
+                  Buongiorno {{contact_person}},
+                </p>
+                <p style="margin:0 0 12px 0;">
+                  In allegato trova il <strong>PDF con il dettaglio dell’ordine di stampa</strong>, con le <strong>quantità richieste</strong> per ciascun articolo.
+                </p>
+                <p style="margin:0 0 12px 0;">
+                  Le chiedo gentilmente di inviarmi:
+                </p>
+                <ul style="margin:0 0 12px 18px; padding:0; color:#333333;">
+                  <li>un <strong>preventivo di spesa</strong> completo (stampa, eventuali impianti, trasporto);</li>
+                  <li>i <strong>tempi di consegna</strong> stimati per questo ordine.</li>
+                </ul>
+                <p style="margin:0;">
+                  In caso di dubbi o necessità di chiarimenti può rispondermi direttamente a questa email.
+                </p>
+              </td>
+            </tr>
+            <!-- Separatore -->
+            <tr>
+              <td style="padding:0 24px;">
+                <hr style="border:none; border-top:1px solid #eeeeee; margin:8px 0 16px 0;">
+              </td>
+            </tr>
+            <!-- Firma -->
+            <tr>
+              <td style="padding:0 24px 24px 24px; font-family:Arial, sans-serif; color:#555555; font-size:13px; line-height:1.4;">
+                <p style="margin:0 0 4px 0;">
+                  Cordiali saluti,
+                </p>
+                <p style="margin:0; font-weight:bold; color:#000000;">
+                  Donatella Venturini - grafica@farmap.it
+                </p>
+                <p style="margin:2px 0 0 0; color:#d62828; font-weight:bold;">
+                  FARMAP Industry Srl
+                </p>
+              </td>
+            </tr>
+            <!-- Footer -->
+            <tr>
+              <td style="background-color:#f0f0f0; padding:10px 24px; text-align:center; font-family:Arial, sans-serif; font-size:11px; color:#888888;">
+                Questo messaggio è stato generato dal sistema ordini TIPOGRAFIA FARMAP.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`,
   );
+  const [isTemplateModalOpen, setIsTemplateModalOpen] = useState(false);
+  const [templateDraft, setTemplateDraft] = useState(bodyTemplate);
 
   useEffect(() => {
     if (!isOpen) {
@@ -96,7 +172,7 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
         );
       }
 
-      setSuccess('Richiesta di invio ordine registrata e inviata a n8n.');
+      setSuccess('Richiesta di invio ordine inviata correttamente!');
     } catch (err) {
       console.error(err);
       setError('Errore durante la registrazione dell\'invio ordine.');
@@ -123,7 +199,7 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
           <div>
             <h2 className="text-2xl font-semibold text-white">Invia ordine alle tipografie</h2>
             <p className="text-sm text-white/70">
-              Scegli una o più tipografie a cui inviare l&apos;ordine. Verrà generato un PDF e salvato in Supabase.
+              Scegli una o più tipografie a cui inviare l&apos;ordine.
             </p>
           </div>
         </div>
@@ -161,14 +237,18 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
             <label className="block text-xs font-medium text-white/70 mb-1">
               Template corpo email
             </label>
-            <input
-              type="text"
-              value={bodyTemplate}
-              onChange={(e) => setBodyTemplate(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-sm focus:outline-none focus:ring-2 focus:ring-red-500/80"
-            />
+            <button
+              type="button"
+              onClick={() => {
+                setTemplateDraft(bodyTemplate);
+                setIsTemplateModalOpen(true);
+              }}
+              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-sm text-left hover:bg-black/60 transition-colors"
+            >
+              Modifica Corpo Mail
+            </button>
             <p className="mt-1 text-[10px] text-white/50">
-              Puoi usare le variabili {'{{contact_person}}'} e {'{{name}}'} nel testo.
+              Il template è precompilato. Puoi personalizzarlo cliccando su &quot;Modifica Corpo Mail&quot;. Puoi usare le variabili {'{{contact_person}}'} e {'{{name}}'} nel testo.
             </p>
           </div>
         </div>
@@ -258,6 +338,50 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
           </button>
         </div>
       </div>
+
+      {isTemplateModalOpen && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-3xl rounded-3xl bg-gradient-to-br from-gray-900 to-black border border-white/10 shadow-2xl p-6 relative">
+            <button
+              type="button"
+              onClick={() => setIsTemplateModalOpen(false)}
+              className="absolute top-4 right-4 text-white/60 hover:text-white rounded-full bg-white/10 p-1"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              Modifica Corpo Mail
+            </h3>
+            <p className="text-xs text-white/60 mb-4">
+              Modifica con attenzione il template HTML dell&apos;email. Puoi usare le variabili {'{{contact_person}}'} e {'{{name}}'} nel testo.
+            </p>
+            <textarea
+              value={templateDraft}
+              onChange={(e) => setTemplateDraft(e.target.value)}
+              className="w-full h-64 px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-xs font-mono focus:outline-none focus:ring-2 focus:ring-red-500/80"
+            />
+            <div className="mt-4 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setIsTemplateModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-white/5 border border-white/20 text-white text-sm hover:bg-white/10 hover:border-white/40 transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setBodyTemplate(templateDraft);
+                  setIsTemplateModalOpen(false);
+                }}
+                className="px-4 py-2 rounded-xl bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-semibold shadow-lg hover:from-red-600 hover:to-red-700 transition-all"
+              >
+                Salva template
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
