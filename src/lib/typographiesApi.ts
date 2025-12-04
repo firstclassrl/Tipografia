@@ -60,6 +60,18 @@ export async function createOrUpdateTypography(input: TypographyInput): Promise<
   return data as Typography;
 }
 
+export async function deleteTypography(id: string): Promise<void> {
+  const { error } = await supabase
+    .from('typographies')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Errore nell\'eliminare la tipografia:', error);
+    throw error;
+  }
+}
+
 export async function uploadOrderPdf(order: OrderWithDetails, pdfBlob: Blob): Promise<string> {
   const filePath = `orders/${order.id || order.order_number}.pdf`;
 

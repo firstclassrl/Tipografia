@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowLeft, Save } from 'lucide-react';
+import { ArrowLeft, Save, Edit, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Typography } from '../lib/supabase';
-import { createOrUpdateTypography, getTypographies, TypographyInput } from '../lib/typographiesApi';
+import { createOrUpdateTypography, deleteTypography, getTypographies, TypographyInput } from '../lib/typographiesApi';
 
 export const TypographiesPage: React.FC = () => {
   const [typographies, setTypographies] = useState<Typography[]>([]);
@@ -15,6 +15,8 @@ export const TypographiesPage: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<Typography | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const loadTypographies = async () => {
     try {
@@ -89,6 +91,35 @@ export const TypographiesPage: React.FC = () => {
       setError('Errore nel salvataggio della tipografia.');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteTarget) return;
+    setError(null);
+    setSuccess(null);
+
+    try {
+      setDeleting(true);
+      await deleteTypography(deleteTarget.id);
+
+      setSuccess(`Tipografia "${deleteTarget.name}" eliminata correttamente.`);
+
+      if (form.id === deleteTarget.id) {
+        setForm({
+          name: '',
+          contact_person: '',
+          email: '',
+        });
+      }
+
+      await loadTypographies();
+    } catch (err) {
+      console.error(err);
+      setError('Errore nell\'eliminazione della tipografia.');
+    } finally {
+      setDeleting(false);
+      setDeleteTarget(null);
     }
   };
 
@@ -196,10 +227,8 @@ export const TypographiesPage: React.FC = () => {
             ) : (
               <div className="space-y-3">
                 {typographies.map((t) => (
-                  <button
+                  <div
                     key={t.id}
-                    type="button"
-                    onClick={() => handleEdit(t)}
                     className="w-full flex items-center justify-between px-4 py-3 rounded-2xl bg-white/10 border border-white/20 text-left hover:bg-white/15 hover:border-white/40 transition-all"
                   >
                     <div>
@@ -209,14 +238,62 @@ export const TypographiesPage: React.FC = () => {
                         <span>{t.email}</span>
                       </div>
                     </div>
-                    <span className="text-xs text-white/60">Clicca per modificare</span>
-                  </button>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(t)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/10 border border-white/30 text-xs text-white hover:bg-white/20 hover:border-white/50 transition-colors"
+                      >
+                        <Edit className="h-3 w-3" />
+                        Modifica
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(t)}
+                        className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-red-600/20 border border-red-500/60 text-xs text-red-100 hover:bg-red-600/30 hover:border-red-400 transition-colors"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                        Elimina
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
           </div>
         </div>
       </div>
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-3xl bg-gradient-to-br from-gray-900 to-black border border-white/10 shadow-2xl p-6">
+            <h3 className="text-xl font-semibold text-white mb-2">
+              Confermi eliminazione tipografia?
+            </h3>
+            <p className="text-sm text-white/70 mb-4">
+              Stai per eliminare la tipografia{' '}
+              <span className="font-semibold text-white">{deleteTarget.name}</span>. Questa azione non può essere annullata.
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(null)}
+                className="px-4 py-2 rounded-xl bg-white/5 border border-white/20 text-white text-sm hover:bg-white/10 hover:border-white/40 transition-colors"
+              >
+                Annulla
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteConfirm}
+                disabled={deleting}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-semibold shadow-lg hover:from-red-700 hover:to-red-800 disabled:opacity-60 disabled:cursor-not-allowed transition-all"
+              >
+                <Trash2 className="h-4 w-4" />
+                {deleting ? 'Eliminazione...' : 'Elimina tipografia'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
