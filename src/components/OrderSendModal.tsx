@@ -243,7 +243,7 @@ export const OrderSendModal: React.FC<OrderSendModalProps> = ({
                 setTemplateDraft(bodyTemplate);
                 setIsTemplateModalOpen(true);
               }}
-              className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-white text-sm text-left hover:bg-black/60 transition-colors"
+              className="w-full px-3 py-2 rounded-xl bg-gray-500/20 border border-gray-400/50 text-gray-100 text-sm text-left hover:bg-gray-500/30 hover:border-gray-300 transition-colors"
             >
               Modifica Corpo Mail
             </button>
