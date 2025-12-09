@@ -73,7 +73,10 @@ export async function deleteTypography(id: string): Promise<void> {
 }
 
 export async function uploadOrderPdf(order: OrderWithDetails, pdfBlob: Blob): Promise<string> {
-  const filePath = `orders/${order.id || order.order_number}.pdf`;
+  // Usa il numero ordine nel nome del file; fallback all'id se manca
+  const baseName = (order.order_number && order.order_number.trim()) || order.id;
+  const safeName = baseName.replace(/\s+/g, '_');
+  const filePath = `orders/${safeName}.pdf`;
 
   const { error } = await supabase.storage
     .from(ORDER_PDFS_BUCKET)

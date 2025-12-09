@@ -197,20 +197,37 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       if (!actualExistingOrder) {
         console.log('DEBUG - existingOrder is undefined, checking if order exists in database...');
         try {
+          // Prima verifica solo l'ordine principale
           const { data: existingOrderData, error: checkError } = await supabase
             .from('orders')
-            .select(`
-              *,
-              order_details (*)
-            `)
+            .select('*')
             .eq('order_number', orderNumber)
             .single();
           
           if (!checkError && existingOrderData) {
             console.log('DEBUG - Found existing order in database:', existingOrderData);
-            actualExistingOrder = existingOrderData;
+            // Se l'ordine esiste, carica anche i dettagli
+            const { data: orderDetails, error: detailsError } = await supabase
+              .from('order_details')
+              .select('*')
+              .eq('order_id', existingOrderData.id);
+            
+            if (!detailsError && orderDetails) {
+              actualExistingOrder = {
+                ...existingOrderData,
+                order_details: orderDetails
+              };
+            } else {
+              actualExistingOrder = {
+                ...existingOrderData,
+                order_details: []
+              };
+            }
           } else {
             console.log('DEBUG - No existing order found, creating new one');
+            if (checkError) {
+              console.log('DEBUG - Check error:', checkError);
+            }
           }
         } catch (error) {
           console.log('DEBUG - Error checking existing order, creating new one:', error);
@@ -257,6 +274,13 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
               .single();
 
             if (orderError) {
+              console.error('Errore nel creare ordine:', {
+                code: orderError.code,
+                message: orderError.message,
+                details: orderError.details,
+                hint: orderError.hint
+              });
+              
               // Se è un errore di chiave duplicata, genera un nuovo numero
               if (orderError.code === '23505' || orderError.message?.includes('duplicate key')) {
                 attempts++;
@@ -264,6 +288,12 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
                 console.log(`Tentativo ${attempts}: nuovo numero ordine ${currentOrderNumber}`);
                 continue;
               }
+              
+              // Se è un errore di permesso/RLS
+              if (orderError.code === '42501' || orderError.message?.includes('permission denied') || orderError.message?.includes('row-level security')) {
+                throw new Error('Errore di permesso: verifica le policy RLS su Supabase. Codice: ' + orderError.code);
+              }
+              
               throw orderError;
             }
             
@@ -330,7 +360,21 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
         .from('order_details')
         .insert(orderDetails);
 
-      if (detailsError) throw detailsError;
+      if (detailsError) {
+        console.error('Errore nel creare order_details:', {
+          code: detailsError.code,
+          message: detailsError.message,
+          details: detailsError.details,
+          hint: detailsError.hint
+        });
+        
+        // Se è un errore di permesso/RLS
+        if (detailsError.code === '42501' || detailsError.message?.includes('permission denied') || detailsError.message?.includes('row-level security')) {
+          throw new Error('Errore di permesso su order_details: verifica le policy RLS su Supabase. Codice: ' + detailsError.code);
+        }
+        
+        throw detailsError;
+      }
 
       // Mostra notifica di successo
       const action = existingOrder ? 'modificato' : 'salvato';
@@ -347,8 +391,28 @@ export const MultiProductModal: React.FC<MultiProductModalProps> = ({
       
     } catch (error: any) {
       console.error('Errore nel salvare l\'ordine multi-prodotto:', error);
+      
+      // Estrai messaggio di errore più dettagliato
+      let errorMessage = 'Errore nel salvare l\'ordine';
+      
+      if (error?.message) {
+        errorMessage = error.message;
+      } else if (error?.code) {
+        errorMessage = `Errore ${error.code}: ${error.message || 'Errore sconosciuto'}`;
+      }
+      
+      // Gestisci errori CORS specificamente
+      if (error?.message?.includes('CORS') || error?.message?.includes('Access-Control-Allow-Origin')) {
+        errorMessage = 'Errore di connessione: verifica la configurazione CORS in Supabase';
+      }
+      
+      // Gestisci errori di rete
+      if (error?.message?.includes('Failed to fetch') || error?.message?.includes('network')) {
+        errorMessage = 'Errore di connessione al server. Verifica la tua connessione internet.';
+      }
+      
       setNotification({
-        message: 'Errore nel salvare l\'ordine',
+        message: errorMessage,
         type: 'error',
         isVisible: true
       });

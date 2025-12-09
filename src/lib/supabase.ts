@@ -4,8 +4,20 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.error('Missing Supabase credentials. Please check your environment variables.');
-  throw new Error('Supabase configuration is missing. Please check your environment variables.');
+  const missing = [];
+  if (!supabaseUrl) missing.push('VITE_SUPABASE_URL');
+  if (!supabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY');
+  
+  console.error('Missing Supabase credentials:', missing.join(', '));
+  console.error('Please check your environment variables in Netlify dashboard:');
+  console.error('Site settings > Environment variables');
+  throw new Error(`Supabase configuration is missing: ${missing.join(', ')}`);
+}
+
+// Verifica che l'URL sia valido
+if (!supabaseUrl.startsWith('http')) {
+  console.error('Invalid Supabase URL format:', supabaseUrl);
+  throw new Error('Invalid Supabase URL format. URL should start with http:// or https://');
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

@@ -13,3 +13,5 @@ CREATE POLICY "Users can delete typographies"
   USING (true);
 
 
+
+
